@@ -1,0 +1,4 @@
+(library
+    (name Pty)
+    (public_name revery-terminal.pty)
+    (c_names bindings))

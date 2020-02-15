@@ -1,0 +1,4 @@
+(install
+    (section bin)
+    (package revery-terminal)
+    (files JetBrainsMono-Regular.ttf JetBrainsMono-Medium.ttf Roboto-Regular.ttf))

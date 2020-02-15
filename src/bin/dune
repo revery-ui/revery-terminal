@@ -1,0 +1,11 @@
+(executable
+    (name App)
+    (package revery-terminal)
+    (preprocess (pps brisk-reconciler.ppx))
+    (public_name App)
+    (libraries
+        isolinear
+        vterm
+        Revery
+        revery-terminal.pty
+            ))
