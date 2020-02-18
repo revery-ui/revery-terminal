@@ -2,6 +2,8 @@
 
 ---
 
+![image](https://user-images.githubusercontent.com/13532591/74748975-3fbbf300-521e-11ea-8583-9ae1d4a18c35.png)
+
 A terminal emulator built with Revery.
 
 This is a barebones terminal emulator factored out from the work to include a terminal emulator in [Onivim 2](https://github.com/onivim/oni2).
