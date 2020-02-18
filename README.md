@@ -1,7 +1,5 @@
 # revery-terminal
 
----
-
 A terminal emulator built with Revery.
 
 This is a barebones terminal emulator factored out from the work to include a terminal emulator in [Onivim 2](https://github.com/onivim/oni2).
