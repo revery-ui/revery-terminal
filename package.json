@@ -33,7 +33,7 @@
   },
   "resolutions": {
     "isolinear": "link:../isolinear",
-    "revery": "revery-ui/revery#4ca3483",
+    "revery": "link:../revery",
     "esy-libvterm": "link:../esy-libvterm",
     "reason-libvterm": "link:../reason-libvterm",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",

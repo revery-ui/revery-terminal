@@ -12,7 +12,4 @@ type cursorPosition = {
 type t =
   | Init
   | InputKey(int32)
-  | TerminalResized(Screen.t)
-  | TerminalCursorMoved(cursorPosition)
-  | TerminalScreenUpdated(Screen.t)
-  | TerminalPropSet(Vterm.TermProp.t);
+  | Terminal(Terminal.msg)

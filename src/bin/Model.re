@@ -1,29 +1,36 @@
+open Terminal;
+
 type t = {
   screen: Screen.t,
-  cursor: Msg.cursorPosition,
+  cursor: Terminal.cursorPosition,
 };
 
 let initial: t = {
   screen: Screen.initial,
-  cursor: Msg.{visible: false, row: 0, column: 0},
+  cursor: Terminal.{visible: false, row: 0, column: 0},
 };
 
-let updater = (model, msg) => {
+let mapTerminalEffect = (terminalEffect) => 
+  terminalEffect
+  |> Isolinear.Effect.map(msg => Msg.Terminal(msg));
+
+let updater = (model: t, msg: Msg.t) => {
   switch (msg) {
-  | Msg.InputKey(key) => (model, Terminal.Effects.input(~id=1, ~key))
-  | Msg.TerminalResized(screen) => (
+  | Msg.InputKey(key) => (model, 
+    Terminal.Effects.input(~id=1, ~key) |> mapTerminalEffect)
+  | Msg.Terminal(Resized(screen)) => (
       {...model, screen},
       Isolinear.Effect.none,
     )
-  | Msg.TerminalScreenUpdated(screen) => (
+  | Msg.Terminal(ScreenUpdated(screen)) => (
       {...model, screen},
       Isolinear.Effect.none,
     )
-  | Msg.TerminalCursorMoved(cursor) => (
+  | Msg.Terminal(CursorMoved(cursor)) => (
       {...model, cursor},
       Isolinear.Effect.none,
     )
   | Init
-  | Msg.TerminalPropSet(_) => (model, Isolinear.Effect.none)
+  | Msg.Terminal(PropSet(_)) => (model, Isolinear.Effect.none)
   };
 };

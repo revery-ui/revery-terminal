@@ -1,3 +1,15 @@
+type cursorPosition = {
+  row: int,
+  column: int,
+  visible: bool,
+};
+
+type msg = 
+| Resized(Screen.t)
+| ScreenUpdated(Screen.t)
+| PropSet(Vterm.TermProp.t)
+| CursorMoved(cursorPosition);
+
 module Internal = {
   type t = {
     pty: Pty.t,
@@ -9,7 +21,7 @@ module Internal = {
     screen: ref(Screen_Internal.t),
     resizeStream: Isolinear.Stream.t(Screen.t),
     screenUpdateStream: Isolinear.Stream.t(Screen.t),
-    cursorMoveStream: Isolinear.Stream.t(Msg.cursorPosition),
+    cursorMoveStream: Isolinear.Stream.t(cursorPosition),
     //termPropsStream: Isolinear.Stream.t(Vterm.TermProp.t),
     refCount: ref(int),
   };
@@ -54,13 +66,11 @@ module Internal = {
       Vterm.Screen.setMoveCursorCallback(
         ~onMoveCursor=
           (newPos, oldPos, visible) => {
-            Msg.(
               cursorMoveDispatch({
                 row: newPos.row,
                 column: newPos.col,
                 visible: true,
               })
-            )
           },
         vterm,
       );
@@ -150,9 +160,10 @@ module Sub = {
     rows: int,
     columns: int,
   };
+  type outerMsg = msg;
   module TerminalSub =
     Isolinear.Sub.Make({
-      type msg = Msg.t;
+      type msg = outerMsg;
       type params = terminalSubParams;
 
       let subscriptionName = "Terminal";
@@ -173,17 +184,17 @@ module Sub = {
 
         let sub1 =
           Isolinear.Stream.subscribe(info.resizeStream, screen => {
-            dispatch(Msg.TerminalResized(screen))
+            dispatch(Resized(screen))
           });
 
         let sub2 =
           Isolinear.Stream.subscribe(info.screenUpdateStream, screen => {
-            dispatch(Msg.TerminalScreenUpdated(screen))
+            dispatch(ScreenUpdated(screen))
           });
 
         let sub3 =
           Isolinear.Stream.subscribe(info.cursorMoveStream, cursorPos => {
-            dispatch(Msg.TerminalCursorMoved(cursorPos))
+            dispatch(CursorMoved(cursorPos))
           });
 
         let unsubscribe = () => {

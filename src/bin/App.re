@@ -10,7 +10,8 @@ module Store =
 
     let updater = Model.updater;
     let subscriptions = model => {
-      Terminal.Sub.terminal(~id=1, ~cmd="/bin/bash", ~rows=40, ~columns=80);
+      Terminal.Sub.terminal(~id=1, ~cmd="/bin/bash", ~rows=40, ~columns=80)
+      |> Isolinear.Sub.map(msg => Msg.Terminal(msg));
     };
   });
 
@@ -52,57 +53,6 @@ let start = window => {
   Revery.Window.startTextInput(window);
 
   Store.dispatch(Msg.Init);
-  //Store.dispatch(Msg.Resized(40, 80));
-  /*Vterm.setOutputCallback(~onOutput=(str) => {
-      output_string(output, str);
-      flush(output);
-    }, vterm);
-
-    Vterm.Screen.setResizeCallback(~onResize=({rows, cols}) => {
-        Store.dispatch(Model.Msg.Resized(rows, cols));
-    }, vterm);
-
-    Vterm.Screen.setTermPropCallback(~onSetTermProp=(termProp) => {
-      print_endline(Vterm.TermProp.toString(termProp));
-    }, vterm)
-
-    Vterm.Screen.setMoveCursorCallback(~onMoveCursor=(newPos, oldPos, visible) => {
-       Store.dispatch(Model.Msg.CursorMoved(Model.Cursor.{
-        row: newPos.row,
-        column: newPos.col,
-        visible,
-       }));
-    }, vterm);*/
-  /*Vterm.Screen.setMoveRectCallback(~onMoveRect=(dest, src) => {
-      print_endline ("Move rect - dest: " ++ Vterm.Rect.toString(dest));
-      print_endline ("Move rect - src: " ++ Vterm.Rect.toString(src));
-    }, vterm);*/
-  /* Vterm.Screen.setDamageCallback(~onDamage=({startRow, startCol, endRow, endCol}: Vterm.Rect.t) => {
-
-       let damages = ref([]);
-       for (x in startCol to endCol - 1) {
-         for (y in startRow to endRow - 1) {
-           let cell = Vterm.Screen.getCell(~row=y, ~col=x, vterm);
-           damages := [Model.DamageInfo.{row: y, col: x, cell}, ...damages^];
-           ();
-         }
-       }
-       Store.dispatch(Model.Msg.Damaged(damages^));
-
-       //Gc.full_major();
-
-       }, vterm);
-
-     let inputThread: Thread.t = Thread.create(() => {
-        while (true) {
-           let c = input_char(input);
-           let str = String.make(1, c);
-           Revery.App.runOnMainThread(() => {
-             let _ = Vterm.write(~input=str, vterm);
-           });
-        }
-     }, ());
-     */
 };
 
 let init = app => {
