@@ -29,10 +29,9 @@
   "dependencies": {
     "revery": "0.29.0",
     "reason-libvterm": "*",
-    "isolinear": "*"
+    "isolinear": "^3.0.0"
   },
   "resolutions": {
-    "isolinear": "link:../isolinear",
     "revery": "link:../revery",
     "esy-libvterm": "link:../esy-libvterm",
     "reason-libvterm": "link:../reason-libvterm",
