@@ -32,9 +32,8 @@
     "isolinear": "^3.0.0"
   },
   "resolutions": {
-    "revery": "link:../revery",
-    "esy-libvterm": "link:../esy-libvterm",
-    "reason-libvterm": "link:../reason-libvterm",
+    "revery": "revery-ui/revery#26f25df",
+    "reason-libvterm": "revery-ui/reason-libvterm#974b81c",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
     "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755",
