@@ -1,5 +1,7 @@
 open Terminal;
 
+// This type [t] is the heart of our app - the entire state
+// of our terminal is contained here!
 type t = {
   screen: Screen.t,
   cursor: Terminal.cursorPosition,

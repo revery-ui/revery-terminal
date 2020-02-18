@@ -33,6 +33,14 @@ let render = (model: Model.t) => {
     };
   };
 
+  let getFgColor = (cell: Vterm.ScreenCell.t) => {
+    cell.reverse == 0 ? getColor(cell.fg) : getColor(cell.bg);
+  };
+
+  let getBgColor = (cell: Vterm.ScreenCell.t) => {
+    cell.reverse == 0 ? getColor(cell.bg) : getColor(cell.fg);
+  };
+
   let element =
     <Canvas
       style=containerStyle
@@ -43,6 +51,7 @@ let render = (model: Model.t) => {
                {font, lineHeight, characterWidth, characterHeight, fontSize}: Msg.fontInfo,
              ) => {
              open Model;
+             let defaultBackground = Colors.black |> Color.toSkia;
 
              let backgroundPaint = Skia.Paint.make();
              Skia.Paint.setAntiAlias(backgroundPaint, false);
@@ -61,25 +70,18 @@ let render = (model: Model.t) => {
                for (row in 0 to rows - 1) {
                  let cell = Screen.getCell(~row, ~column, model.screen);
 
-                 let (fgColor, bgColor) =
-                   if (cell.reverse == 0) {
-                     let bgColor = getColor(cell.bg);
-                     let fgColor = getColor(cell.fg);
-                     (fgColor, bgColor);
-                   } else {
-                     let bgColor = getColor(cell.fg);
-                     let fgColor = getColor(cell.bg);
-                     (fgColor, bgColor);
-                   };
-                 Skia.Paint.setColor(backgroundPaint, bgColor);
-                 CanvasContext.drawRectLtwh(
-                   ~paint=backgroundPaint,
-                   ~left=float(column) *. characterWidth,
-                   ~top=float(row) *. lineHeight,
-                   ~height=lineHeight,
-                   ~width=characterWidth,
-                   canvasContext,
-                 );
+                 let bgColor = getBgColor(cell);
+                 if (bgColor != defaultBackground) {
+                   Skia.Paint.setColor(backgroundPaint, bgColor);
+                   CanvasContext.drawRectLtwh(
+                     ~paint=backgroundPaint,
+                     ~left=float(column) *. characterWidth,
+                     ~top=float(row) *. lineHeight,
+                     ~height=lineHeight,
+                     ~width=characterWidth,
+                     canvasContext,
+                   );
+                 };
                };
              };
 

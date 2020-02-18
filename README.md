@@ -36,10 +36,10 @@ TODO
 ## Technologies Used
 
 - [Revery](https://github.com/revery-ui/revery) to provide the window management and drawing functionality.
-- [reason-libvterm](https://github.com/revery-ui/reason-libvterm) bindings for [libvterm](TODO)
+- [reason-libvterm](https://github.com/revery-ui/reason-libvterm) bindings for [libvterm](http://www.leonerd.org.uk/code/libvterm)
 - [isolinear](https://github.com/bryphe/isolinear) as an Elm-like applicatiion management framework.
 
-We also use the [JetBrains Mono] font.
+We also use the [JetBrains Mono](https://www.jetbrains.com/lp/mono/) font.
 
 ## License
 
