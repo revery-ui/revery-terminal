@@ -35,15 +35,15 @@ These would all be great contribution opportunities, though!
 
 ### Main modules
 
-- [`src\bin\App.re`](src\bin\App.re) - this is the entry point for the application (where we start the window, wire up our store).
-- [`src\bin\Renderer.re`](src\bin\Renderer.re) - the implementation for the renderer - drawing the terminal to the window. A pure function of `Model.t => Revery.element`.
-- [`src\bin\Model.re`](src\bin\Model.re) - this is the heart of our application - that provides the definition of `Model.t` as well as how it changes over time (by providing an `updater` function).
-- [`src\bin\Msg.re`](src\bin\Msg.re) - defines `Msg.t` - the ways our application's model can change.
+- [`src\bin\App.re`](tree\master\src\bin\App.re) - this is the entry point for the application (where we start the window, wire up our store).
+- [`src\bin\Renderer.re`](tree\master\src\bin\Renderer.re) - the implementation for the renderer - drawing the terminal to the window. A pure function of `Model.t => Revery.element`.
+- [`src\bin\Model.re`](tree\master\src\bin\Model.re) - this is the heart of our application - that provides the definition of `Model.t` as well as how it changes over time (by providing an `updater` function).
+- [`src\bin\Msg.re`](tree\master\src\bin\Msg.re) - defines `Msg.t` - the ways our application's model can change.
 
 ### Supporting modules
 
-- [`src\bin\Screen.rei`](src\bin\Screen.rei) - helper to manage the state of the screen
-- [`src\pty`](src\pty) - small OCaml binding to the `openpty` system call, to create a pseudoterminal.
+- [`src\bin\Screen.rei`](tree\master\src\bin\Screen.rei) - helper to manage the state of the screen
+- [`src\pty`](tree\master\src\pty) - small OCaml binding to the `openpty` system call, to create a pseudoterminal.
 ## Technologies Used
 
 - [Revery](https://github.com/revery-ui/revery) to provide the window management and drawing functionality.
