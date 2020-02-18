@@ -4,11 +4,11 @@ type cursorPosition = {
   visible: bool,
 };
 
-type msg = 
-| Resized(Screen.t)
-| ScreenUpdated(Screen.t)
-| PropSet(Vterm.TermProp.t)
-| CursorMoved(cursorPosition)
+type msg =
+  | Resized(Screen.t)
+  | ScreenUpdated(Screen.t)
+  | PropSet(Vterm.TermProp.t)
+  | CursorMoved(cursorPosition);
 
 module Sub: {
   let terminal:
@@ -18,4 +18,6 @@ module Sub: {
 
 module Effects: {
   let input: (~id: int, ~key: int32) => Isolinear.Effect.t(msg);
+  let resize:
+    (~id: int, ~rows: int, ~columns: int) => Isolinear.Effect.t(msg);
 };

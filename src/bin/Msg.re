@@ -16,13 +16,13 @@ type windowSize = {
 
 type fontInfo = {
   font: Revery.Font.t,
+  fontSize: float,
   lineHeight: float,
   characterHeight: float,
   characterWidth: float,
 };
 
 type t =
-  | Init
   | InputKey(int32)
   | Terminal(Terminal.msg)
   | FontLoaded(fontInfo)

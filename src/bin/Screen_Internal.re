@@ -41,7 +41,6 @@ let getRows = model => model.rows;
 let getColumns = model => model.columns;
 
 let resize = (~rows, ~columns, model) => {
-  print_endline("RESIZE: " ++ string_of_int(rows));
   {
     ...model,
     damageCounter: model.damageCounter + 1,

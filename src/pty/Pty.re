@@ -16,7 +16,7 @@ let create = (~shellCmd) => {
   // pid == 0 means the 'child' process - this is the one we'll
   // run the shell.
   if (pid == 0) {
-    let _sid:int = Unix.setsid();
+    let _sid: int = Unix.setsid();
     Unix.close(master);
     Unix.dup2(slave, Unix.stdin);
     Unix.dup2(slave, Unix.stdout);

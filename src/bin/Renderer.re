@@ -18,10 +18,6 @@ let render = (model: Model.t) => {
 
   let innerStyle = Style.[flexDirection(`Row), alignItems(`FlexEnd)];
 
-  let fontPath =
-    Revery.Environment.executingDirectory ++ "JetBrainsMono-Medium.ttf";
-  let font = Revery.Font.load(fontPath);
-
   let getColor = (color: Vterm.Color.t) => {
     switch (color) {
     | DefaultBackground => Colors.black |> Color.toSkia
@@ -37,60 +33,97 @@ let render = (model: Model.t) => {
     };
   };
 
-  let paint = Skia.Paint.make();
-
-  let (width, height) =
-    switch (font) {
-    | Ok(typeface) =>
-      let typeFace = Revery.Font.getSkiaTypeface(typeface);
-      Skia.Paint.setTypeface(paint, typeFace);
-      Skia.Paint.setTextSize(paint, 12.);
-      Skia.Paint.setAntiAlias(paint, true);
-      Skia.Paint.setSubpixelText(paint, true);
-      Skia.Paint.setLcdRenderText(paint, true);
-      let {height, lineHeight, _}: Revery.Font.FontMetrics.t =
-        Revery.Font.getMetrics(typeface, 12.);
-      let width = Skia.Paint.measureText(paint, "H", None);
-      (width, height);
-    | _ => (10., 10.)
-    };
-
   let element =
     <Canvas
       style=containerStyle
       render={canvasContext => {
-        open Model;
-        let columns = Screen.getColumns(model.screen);
-        let rows = Screen.getRows(model.screen);
-        for (column in 0 to columns - 1) {
-          for (row in 0 to rows - 1) {
-            let cell = Screen.getCell(~row, ~column, model.screen);
-            let fgColor = getColor(cell.fg);
-            Skia.Paint.setColor(paint, fgColor);
-            if (String.length(cell.chars) > 0) {
-              CanvasContext.drawText(
-                ~paint,
-                ~x=float(column) *. width,
-                ~y=float(row) *. height +. height,
-                ~text=String.make(1, cell.chars.[0]),
-                canvasContext,
-              );
-            };
-          };
-        };
+        model.font
+        |> Option.iter(
+             (
+               {font, lineHeight, characterWidth, characterHeight, fontSize}: Msg.fontInfo,
+             ) => {
+             open Model;
 
-        // If the cursor is visible, let's paint it now
-        if (model.cursor.visible) {
-          Skia.Paint.setColor(paint, Colors.white |> Color.toSkia);
-          CanvasContext.drawRectLtwh(
-            ~paint,
-            ~left=float(model.cursor.column) *. width,
-            ~top=float(model.cursor.row) *. height,
-            ~width,
-            ~height,
-            canvasContext,
-          );
-        };
+             let backgroundPaint = Skia.Paint.make();
+             Skia.Paint.setAntiAlias(backgroundPaint, false);
+
+             let textPaint = Skia.Paint.make();
+             let typeFace = Revery.Font.getSkiaTypeface(font);
+             Skia.Paint.setTypeface(textPaint, typeFace);
+             Skia.Paint.setTextSize(textPaint, 12.);
+             Skia.Paint.setAntiAlias(textPaint, true);
+             Skia.Paint.setSubpixelText(textPaint, true);
+             Skia.Paint.setLcdRenderText(textPaint, true);
+
+             let columns = Screen.getColumns(model.screen);
+             let rows = Screen.getRows(model.screen);
+             for (column in 0 to columns - 1) {
+               for (row in 0 to rows - 1) {
+                 let cell = Screen.getCell(~row, ~column, model.screen);
+
+                 let (fgColor, bgColor) =
+                   if (cell.reverse == 0) {
+                     let bgColor = getColor(cell.bg);
+                     let fgColor = getColor(cell.fg);
+                     (fgColor, bgColor);
+                   } else {
+                     let bgColor = getColor(cell.fg);
+                     let fgColor = getColor(cell.bg);
+                     (fgColor, bgColor);
+                   };
+                 Skia.Paint.setColor(backgroundPaint, bgColor);
+                 CanvasContext.drawRectLtwh(
+                   ~paint=backgroundPaint,
+                   ~left=float(column) *. characterWidth,
+                   ~top=float(row) *. lineHeight,
+                   ~height=lineHeight,
+                   ~width=characterWidth,
+                   canvasContext,
+                 );
+               };
+             };
+
+             for (column in 0 to columns - 1) {
+               for (row in 0 to rows - 1) {
+                 let cell = Screen.getCell(~row, ~column, model.screen);
+
+                 let (fgColor, bgColor) =
+                   if (cell.reverse == 0) {
+                     let bgColor = getColor(cell.bg);
+                     let fgColor = getColor(cell.fg);
+                     (fgColor, bgColor);
+                   } else {
+                     let bgColor = getColor(cell.fg);
+                     let fgColor = getColor(cell.bg);
+                     (fgColor, bgColor);
+                   };
+
+                 Skia.Paint.setColor(textPaint, fgColor);
+                 if (String.length(cell.chars) > 0) {
+                   CanvasContext.drawText(
+                     ~paint=textPaint,
+                     ~x=float(column) *. characterWidth,
+                     ~y=float(row) *. lineHeight +. characterHeight,
+                     ~text=String.make(1, cell.chars.[0]),
+                     canvasContext,
+                   );
+                 };
+               };
+             };
+
+             // If the cursor is visible, let's paint it now
+             if (model.cursor.visible) {
+               Skia.Paint.setColor(textPaint, Colors.white |> Color.toSkia);
+               CanvasContext.drawRectLtwh(
+                 ~paint=textPaint,
+                 ~left=float(model.cursor.column) *. characterWidth,
+                 ~top=float(model.cursor.row) *. lineHeight,
+                 ~width=characterWidth,
+                 ~height=lineHeight,
+                 canvasContext,
+               );
+             };
+           })
       }}
     />;
 

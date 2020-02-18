@@ -4,11 +4,11 @@ type cursorPosition = {
   visible: bool,
 };
 
-type msg = 
-| Resized(Screen.t)
-| ScreenUpdated(Screen.t)
-| PropSet(Vterm.TermProp.t)
-| CursorMoved(cursorPosition);
+type msg =
+  | Resized(Screen.t)
+  | ScreenUpdated(Screen.t)
+  | PropSet(Vterm.TermProp.t)
+  | CursorMoved(cursorPosition);
 
 module Internal = {
   type t = {
@@ -66,11 +66,11 @@ module Internal = {
       Vterm.Screen.setMoveCursorCallback(
         ~onMoveCursor=
           (newPos, oldPos, visible) => {
-              cursorMoveDispatch({
-                row: newPos.row,
-                column: newPos.col,
-                visible: true,
-              })
+            cursorMoveDispatch({
+              row: newPos.row,
+              column: newPos.col,
+              visible: true,
+            })
           },
         vterm,
       );
@@ -226,6 +226,30 @@ module Effects = {
       switch (Hashtbl.find_opt(Internal.idToTerminal, id)) {
       | None => ()
       | Some({vterm, _}) => Vterm.Keyboard.unichar(vterm, key, Vterm.None)
+      }
+    });
+  let resize = (~id: int, ~rows, ~columns) =>
+    Isolinear.Effect.create(~name="terminal.input", () => {
+      switch (Hashtbl.find_opt(Internal.idToTerminal, id)) {
+      | None => ()
+      | Some({pty, vterm, screen, _}) =>
+        Pty.resize(~rows, ~columns, pty);
+        screen := Screen_Internal.resize(~rows, ~columns, screen^);
+        Vterm.setSize(~size={rows, cols: columns}, vterm);
+
+        // After the size changed - re-get all the cells
+        let damages = ref([]);
+        for (x in 0 to columns - 1) {
+          for (y in 0 to rows - 1) {
+            let cell = Vterm.Screen.getCell(~row=y, ~col=x, vterm);
+            damages :=
+              [
+                Screen_Internal.DamageInfo.{row: y, col: x, cell},
+                ...damages^,
+              ];
+          };
+        };
+        screen := Screen_Internal.damaged(screen^, damages^);
       }
     });
 };

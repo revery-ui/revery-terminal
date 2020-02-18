@@ -26,6 +26,9 @@ let start = window => {
     prerr_endline("Exception: " ++ Printexc.to_string(exn))
   });
 
+  // Set up Revery window listeners
+  // This would be even nicer if we had a 'ReveryIso' (revery + isolinear)
+  // project that provided subscriptions and effects for working with Revery.
   let _: unit => unit =
     Revery.Window.onTextInputCommit(
       window, ({text}: Revery.Events.textInputEvent) => {
@@ -51,18 +54,37 @@ let start = window => {
     );
 
   let _: unit => unit =
-    Revery.Window.onSizeChanged(
-      window,
-      ({width, height}) => {
-         Store.dispatch(Msg.WindowSizeChanged({
-          pixelWidth: width,
-          pixelHeight: height,
-         }))
-      });
+    Revery.Window.onSizeChanged(window, ({width, height}) => {
+      Store.dispatch(
+        Msg.WindowSizeChanged({pixelWidth: width, pixelHeight: height}),
+      )
+    });
 
   Revery.Window.startTextInput(window);
 
-  Store.dispatch(Msg.Init);
+  // Load font
+  let fontPath =
+    Revery.Environment.executingDirectory ++ "JetBrainsMono-Medium.ttf";
+  let fontLoadResult = Revery.Font.load(fontPath);
+  let fontSize = 12.0;
+
+  switch (fontLoadResult) {
+  | Ok(font) =>
+    let {height, lineHeight, _}: Revery.Font.FontMetrics.t =
+      Revery.Font.getMetrics(font, fontSize);
+    let {width, _}: Revery.Font.measureResult =
+      Revery.Font.measure(font, fontSize, "M");
+    Store.dispatch(
+      Msg.FontLoaded({
+        font,
+        fontSize,
+        lineHeight,
+        characterHeight: height,
+        characterWidth: width,
+      }),
+    );
+  | Error(msg) => failwith(msg)
+  };
 };
 
 let init = app => {
