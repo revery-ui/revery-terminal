@@ -50,6 +50,16 @@ let start = window => {
       },
     );
 
+  let _: unit => unit =
+    Revery.Window.onSizeChanged(
+      window,
+      ({width, height}) => {
+         Store.dispatch(Msg.WindowSizeChanged({
+          pixelWidth: width,
+          pixelHeight: height,
+         }))
+      });
+
   Revery.Window.startTextInput(window);
 
   Store.dispatch(Msg.Init);

@@ -3,11 +3,13 @@ open Terminal;
 type t = {
   screen: Screen.t,
   cursor: Terminal.cursorPosition,
+  font: option(Msg.fontInfo),
 };
 
 let initial: t = {
   screen: Screen.initial,
   cursor: Terminal.{visible: false, row: 0, column: 0},
+  font: None,
 };
 
 let mapTerminalEffect = (terminalEffect) => 
@@ -15,6 +17,9 @@ let mapTerminalEffect = (terminalEffect) =>
   |> Isolinear.Effect.map(msg => Msg.Terminal(msg));
 
 let updater = (model: t, msg: Msg.t) => {
+
+  let noop = (model, Isolinear.Effect.none);
+
   switch (msg) {
   | Msg.InputKey(key) => (model, 
     Terminal.Effects.input(~id=1, ~key) |> mapTerminalEffect)
@@ -30,7 +35,10 @@ let updater = (model: t, msg: Msg.t) => {
       {...model, cursor},
       Isolinear.Effect.none,
     )
+  // TODO:
   | Init
-  | Msg.Terminal(PropSet(_)) => (model, Isolinear.Effect.none)
+  | Msg.FontLoaded(_) => noop
+  | Msg.Terminal(PropSet(_)) => noop
+  | Msg.WindowSizeChanged(_) => noop
   };
 };

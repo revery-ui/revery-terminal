@@ -9,7 +9,21 @@ type cursorPosition = {
   visible: bool,
 };
 
+type windowSize = {
+  pixelWidth: int,
+  pixelHeight: int,
+};
+
+type fontInfo = {
+  font: Revery.Font.t,
+  lineHeight: float,
+  characterHeight: float,
+  characterWidth: float,
+};
+
 type t =
   | Init
   | InputKey(int32)
   | Terminal(Terminal.msg)
+  | FontLoaded(fontInfo)
+  | WindowSizeChanged(windowSize);

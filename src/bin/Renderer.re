@@ -48,7 +48,7 @@ let render = (model: Model.t) => {
       Skia.Paint.setAntiAlias(paint, true);
       Skia.Paint.setSubpixelText(paint, true);
       Skia.Paint.setLcdRenderText(paint, true);
-      let {height, _}: Revery.Font.FontMetrics.t =
+      let {height, lineHeight, _}: Revery.Font.FontMetrics.t =
         Revery.Font.getMetrics(typeface, 12.);
       let width = Skia.Paint.measureText(paint, "H", None);
       (width, height);
@@ -62,7 +62,6 @@ let render = (model: Model.t) => {
         open Model;
         let columns = Screen.getColumns(model.screen);
         let rows = Screen.getRows(model.screen);
-        print_endline("ROWS: " ++ string_of_int(rows));
         for (column in 0 to columns - 1) {
           for (row in 0 to rows - 1) {
             let cell = Screen.getCell(~row, ~column, model.screen);
