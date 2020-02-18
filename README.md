@@ -1,6 +1,8 @@
 # revery-terminal
 
----
+[![Build Status](https://dev.azure.com/revery-ui/revery/_apis/build/status/revery-ui.revery-terminal?branchName=master)](https://dev.azure.com/revery-ui/revery/_build/latest?definitionId=25&branchName=master)
+
+--
 
 A terminal emulator built with Revery.
 
