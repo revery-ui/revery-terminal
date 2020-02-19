@@ -1,4 +1,10 @@
 (library
     (name Pty)
     (public_name revery-terminal.pty)
+    (flags (:include flags.sexp))
     (c_names bindings))
+
+(rule
+    (targets flags.sexp)
+    (deps (:discover config/discover.exe))
+    (action (run %{discover})))
