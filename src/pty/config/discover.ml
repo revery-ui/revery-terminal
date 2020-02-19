@@ -24,7 +24,7 @@ let cclib lib = ["-cclib"; lib]
 let flags =
     match get_os with
     | Linux -> []
-        @ cclib("-luser")
+        @ cclib("-lutil")
     | _ -> []
 ;;
 
