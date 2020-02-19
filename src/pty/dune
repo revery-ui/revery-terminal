@@ -1,4 +1,5 @@
 (library
     (name Pty)
     (public_name revery-terminal.pty)
+    (flags -cclib -lutil)
     (c_names bindings))
