@@ -39,7 +39,7 @@ module Internal = {
         Isolinear.Stream.create();
       let (cursorMoveStream, cursorMoveDispatch) = Isolinear.Stream.create();
 
-      let pty = Pty.create(~shellCmd="/bin/bash");
+      let pty = Pty.create(~shellCmd=cmd);
       let fd = Pty.get_descr(pty);
       let input = Unix.in_channel_of_descr(fd);
       let output = Unix.out_channel_of_descr(fd);
@@ -65,7 +65,7 @@ module Internal = {
 
       Vterm.Screen.setMoveCursorCallback(
         ~onMoveCursor=
-          (newPos, oldPos, visible) => {
+          (newPos, _oldPos, _visible) => {
             cursorMoveDispatch({
               row: newPos.row,
               column: newPos.col,
@@ -205,13 +205,13 @@ module Sub = {
         {unsubscribe, id: params.id};
       };
 
-      let update = (~params, ~state, ~dispatch) => {
+      let update = (~params as _, ~state, ~dispatch as _) => {
         state;
       };
 
-      let dispose = (~params, ~state) => {
+      let dispose = (~params as _, ~state) => {
         state.unsubscribe();
-        Internal.dispose(state.id);
+        Internal.dispose(~id=state.id);
       };
     });
 
