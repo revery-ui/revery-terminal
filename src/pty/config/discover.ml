@@ -28,4 +28,11 @@ let flags =
     | _ -> []
 ;;
 
+let c_library_flags =
+    match get_os with
+    | Linux -> ["-lutil"]
+    | _ -> []
+;;
+
 Configurator.V1.Flags.write_sexp "flags.sexp" flags;
+Configurator.V1.Flags.write_sexp "c_library_flags.sexp" c_library_flags;
