@@ -9,7 +9,7 @@ module Store =
     let initial = Model.initial;
 
     let updater = Model.updater;
-    let subscriptions = model => {
+    let subscriptions = _model => {
       Terminal.Sub.terminal(~id=1, ~cmd="/bin/bash", ~rows=40, ~columns=80)
       |> Isolinear.Sub.map(msg => Msg.Terminal(msg));
     };
@@ -62,7 +62,7 @@ let init = app => {
 
   // And enable record backtraces, to check for exceptions
   Printexc.record_backtrace(true);
-  Printexc.set_uncaught_exception_handler((exn, backtrace) => {
+  Printexc.set_uncaught_exception_handler((exn, _backtrace) => {
     prerr_endline("Exception: " ++ Printexc.to_string(exn))
   });
 

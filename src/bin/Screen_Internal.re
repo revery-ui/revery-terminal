@@ -22,7 +22,7 @@ let getCell = (~row, ~column, screen) => {
   };
 };
 
-let updateCell = ({rows, columns, cells, _}, damage: DamageInfo.t) => {
+let updateCell = ({ columns, cells, _}, damage: DamageInfo.t) => {
   let idx = damage.row * columns + damage.col;
   cells[idx] = damage.cell;
 };
@@ -42,7 +42,6 @@ let getColumns = model => model.columns;
 
 let resize = (~rows, ~columns, model) => {
   {
-    ...model,
     damageCounter: model.damageCounter + 1,
     rows,
     columns,

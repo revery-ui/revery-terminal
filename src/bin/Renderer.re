@@ -1,7 +1,6 @@
 open Revery;
 open Revery.Draw;
 open Revery.UI;
-open Revery.UI.Components;
 
 let render = (model: Model.t) => {
   let containerStyle =
@@ -15,8 +14,6 @@ let render = (model: Model.t) => {
       left(0),
       right(0),
     ];
-
-  let innerStyle = Style.[flexDirection(`Row), alignItems(`FlexEnd)];
 
   let getColor = (color: Vterm.Color.t) => {
     switch (color) {
@@ -59,7 +56,7 @@ let render = (model: Model.t) => {
              let textPaint = Skia.Paint.make();
              let typeFace = Revery.Font.getSkiaTypeface(font);
              Skia.Paint.setTypeface(textPaint, typeFace);
-             Skia.Paint.setTextSize(textPaint, 12.);
+             Skia.Paint.setTextSize(textPaint, fontSize);
              Skia.Paint.setAntiAlias(textPaint, true);
              Skia.Paint.setSubpixelText(textPaint, true);
              Skia.Paint.setLcdRenderText(textPaint, true);
@@ -89,16 +86,7 @@ let render = (model: Model.t) => {
                for (row in 0 to rows - 1) {
                  let cell = Screen.getCell(~row, ~column, model.screen);
 
-                 let (fgColor, bgColor) =
-                   if (cell.reverse == 0) {
-                     let bgColor = getColor(cell.bg);
-                     let fgColor = getColor(cell.fg);
-                     (fgColor, bgColor);
-                   } else {
-                     let bgColor = getColor(cell.fg);
-                     let fgColor = getColor(cell.bg);
-                     (fgColor, bgColor);
-                   };
+                 let fgColor = getFgColor(cell);
 
                  Skia.Paint.setColor(textPaint, fgColor);
                  if (String.length(cell.chars) > 0) {

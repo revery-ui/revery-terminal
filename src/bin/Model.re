@@ -18,7 +18,7 @@ let initial: t = {
   pixelHeight: 1,
 };
 
-let calculateRowsAndColumns = ({pixelWidth, pixelHeight, font}) => {
+let calculateRowsAndColumns = ({pixelWidth, pixelHeight, font, _}) => {
   switch (font) {
   | None => (0, 0)
   | Some(loadedFont) =>
