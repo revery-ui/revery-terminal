@@ -87,12 +87,11 @@ let init = app => {
       (keyEvent: Key.KeyEvent.t) => {
         let {keycode, _}: Key.KeyEvent.t = keyEvent;
 
-        if
-          (keycode == 8  /* backspace */
-           || keycode == 9  /* tab */
-           || keycode == 13  /* return */
-           || keycode == 27) /* escape */ {
-          Store.dispatch(Msg.InputKey(keycode |> Int32.of_int));
+        if (keycode == 8  /* backspace */
+            || keycode == 9  /* tab */
+            || keycode == 13  /* return */
+            || keycode == 27) {
+          /* escape */ Store.dispatch(Msg.InputKey(keycode |> Int32.of_int));
         };
       },
     );
