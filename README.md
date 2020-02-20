@@ -10,6 +10,11 @@ It's also a fun exploration in leveraging an Elm-style architecture in a nativel
 
 ![image](https://user-images.githubusercontent.com/13532591/74748975-3fbbf300-521e-11ea-8583-9ae1d4a18c35.png)
 
+## Pre-requisites
+
+- Make sure to install the [dependencies needed for Revery](https://github.com/microsoft/node-pty)
+- __OSX:__ You'll also need `glibtool` (`brew install libtool`)
+
 ## Building
 
 - `npm install -g esy@0.6.2`
