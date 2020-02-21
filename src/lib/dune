@@ -1,5 +1,6 @@
 (library
     (name ReveryTerminal)
     (public_name revery-terminal.lib)
-    (libraries isolinear vterm)
+    (preprocess (pps brisk-reconciler.ppx))
+    (libraries isolinear vterm Revery)
 )

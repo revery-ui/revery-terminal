@@ -1,14 +1,4 @@
-type cursorPosition = {
-  row: int,
-  column: int,
-  visible: bool,
-};
-
-type msg =
-  | Resized(Screen.t)
-  | ScreenUpdated(Screen.t)
-  | PropSet(Vterm.TermProp.t)
-  | CursorMoved(cursorPosition);
+type msg = ReveryTerminal.effect;
 
 module Sub: {
   let terminal:

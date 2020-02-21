@@ -1,56 +1,36 @@
 open Revery;
 open Revery.UI;
 
+open ReveryTerminal;
+
 module Store =
   Isolinear.Store.Make({
-    type msg = Msg.t;
+    type msg = Model.msg;
     type model = Model.t;
 
     let initial = Model.initial;
 
     let updater = Model.updater;
-    let subscriptions = _model => {
-      Terminal.Sub.terminal(~id=1, ~cmd="/bin/bash", ~rows=40, ~columns=80)
-      |> Isolinear.Sub.map(msg => Msg.Terminal(msg));
-    };
+    let subscriptions = Model.subscriptions;
   });
-
-let loadFont = () => {
-  // Load font
-  let fontPath =
-    Revery.Environment.executingDirectory ++ "JetBrainsMono-Medium.ttf";
-  let fontLoadResult = Revery.Font.load(fontPath);
-  let fontSize = 12.0;
-
-  switch (fontLoadResult) {
-  | Ok(font) =>
-    let {height, lineHeight, _}: Revery.Font.FontMetrics.t =
-      Revery.Font.getMetrics(font, fontSize);
-    let {width, _}: Revery.Font.measureResult =
-      Revery.Font.measure(font, fontSize, "M");
-    Store.dispatch(
-      Msg.FontLoaded({
-        font,
-        fontSize,
-        lineHeight,
-        characterHeight: height,
-        characterWidth: width,
-      }),
-    );
-  | Error(msg) => failwith(msg)
-  };
-};
 
 let init = app => {
   // Create a primary window for our app
   let window = App.createWindow(app, "Revery Terminal");
 
+  let emptyElement = <View />;
+
   // Connect with the isolinear store -
-  let redraw = UI.start(window, <View />);
+  let redraw = UI.start(window, emptyElement);
+
+  let render = ({screen, cursor, font, _}: Model.t) =>
+    font
+    |> Option.map(font => ReveryTerminal.render(~font, ~screen, ~cursor))
+    |> Option.value(~default=emptyElement);
 
   // ...wire up any state changes to trigger a redraw of the UI
   let _unsubscribe: unit => unit =
-    Store.onModelChanged(newModel => newModel |> Renderer.render |> redraw);
+    Store.onModelChanged(newModel => newModel |> render |> redraw);
 
   // ...and whenever there are side-effects pending, run those immediately.
   let _unsubscribe: unit => unit =
@@ -75,7 +55,7 @@ let init = app => {
       String.iter(
         c => {
           let charCode = Char.code(c) |> Int32.of_int;
-          Store.dispatch(Msg.InputKey(charCode));
+          Store.dispatch(InputKey(charCode));
         },
         text,
       )
@@ -91,7 +71,7 @@ let init = app => {
             || keycode == 9  /* tab */
             || keycode == 13  /* return */
             || keycode == 27) {
-          /* escape */ Store.dispatch(Msg.InputKey(keycode |> Int32.of_int));
+          /* escape */ Store.dispatch(InputKey(keycode |> Int32.of_int));
         };
       },
     );
@@ -99,13 +79,21 @@ let init = app => {
   let _: unit => unit =
     Revery.Window.onSizeChanged(window, ({width, height}) => {
       Store.dispatch(
-        Msg.WindowSizeChanged({pixelWidth: width, pixelHeight: height}),
+        WindowSizeChanged({pixelWidth: width, pixelHeight: height}),
       )
     });
 
   Revery.Window.startTextInput(window);
 
-  loadFont();
+  // Load font, and dispatch on success
+  let fontPath =
+    Revery.Environment.executingDirectory ++ "JetBrainsMono-Medium.ttf";
+
+  switch (Revery.Font.load(fontPath)) {
+  | Ok(font) =>
+    Store.dispatch(Model.FontLoaded(Font.make(~size=12.0, font)))
+  | Error(msg) => failwith(msg)
+  };
 };
 
 App.start(init);
