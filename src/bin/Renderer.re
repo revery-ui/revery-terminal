@@ -2,7 +2,10 @@ open Revery;
 open Revery.Draw;
 open Revery.UI;
 
-let render = (model: Model.t) => {
+module TerminalView = {
+
+  let%component make = (~model: Model.t, ()) => {
+
   let containerStyle =
     Style.[
       backgroundColor(Colors.black),
@@ -37,6 +40,29 @@ let render = (model: Model.t) => {
   let getBgColor = (cell: Vterm.ScreenCell.t) => {
     cell.reverse == 0 ? getColor(cell.bg) : getColor(cell.fg);
   };
+
+    let (cursorLeft, cursorTop) =
+      model.font
+      |> Option.map(({characterWidth, lineHeight, _}: Msg.fontInfo) => {
+        let cursorLeft = float(model.cursor.column) *. characterWidth;
+        let cursorTop=float(model.cursor.row) *. lineHeight;
+        (cursorLeft, cursorTop);
+      })
+      |> Option.value(~default=(0., 0.));
+
+    let stiffSpring = Spring.Options.create(~stiffness=250., ~damping=20., ());
+
+    // Use the spring hook to add an animation for the cursor left / top positions
+    let%hook (springyCursorLeft, _setCursorRowImmediately) =
+      Hooks.spring(
+        ~target=cursorLeft,
+        stiffSpring,
+      );
+    let%hook (springyCursorTop, _setCursorTopImmediately) =
+      Hooks.spring(
+        ~target=cursorTop,
+        stiffSpring,
+      );
 
   let element =
     <Canvas
@@ -106,8 +132,8 @@ let render = (model: Model.t) => {
                Skia.Paint.setColor(textPaint, Colors.white |> Color.toSkia);
                CanvasContext.drawRectLtwh(
                  ~paint=textPaint,
-                 ~left=float(model.cursor.column) *. characterWidth,
-                 ~top=float(model.cursor.row) *. lineHeight,
+                 ~left=springyCursorLeft,
+                 ~top=springyCursorTop,
                  ~width=characterWidth,
                  ~height=lineHeight,
                  canvasContext,
@@ -119,3 +145,6 @@ let render = (model: Model.t) => {
 
   element;
 };
+};
+
+let render = (model: Model.t) => <TerminalView model />;
