@@ -7,5 +7,6 @@
         isolinear
         vterm
         Revery
+        revery-terminal.lib
         revery-terminal.pty
             ))

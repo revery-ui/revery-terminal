@@ -1,0 +1,4 @@
+(library
+    (name ReveryTerminal)
+    (public_name revery-terminal.lib)
+)

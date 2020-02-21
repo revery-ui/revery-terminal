@@ -42,6 +42,8 @@ let loadFont = () => {
 };
 
 let init = app => {
+  ReveryTerminal.hello();
+
   // Create a primary window for our app
   let window = App.createWindow(app, "Revery Terminal");
 
