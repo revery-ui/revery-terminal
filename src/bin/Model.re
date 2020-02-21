@@ -1,28 +1,45 @@
 open Terminal;
+open ReveryTerminal;
 
 // This type [t] is the heart of our app - the entire state
 // of our terminal is contained here!
 type t = {
   screen: Screen.t,
-  cursor: Terminal.cursorPosition,
-  font: option(Msg.fontInfo),
+  cursor: Cursor.t,
+  font: option(Font.t),
   pixelWidth: int,
   pixelHeight: int,
 };
 
 let initial: t = {
   screen: Screen.initial,
-  cursor: Terminal.{visible: false, row: 0, column: 0},
+  cursor: Cursor.{visible: false, row: 0, column: 0},
   font: None,
   pixelWidth: 1,
   pixelHeight: 1,
 };
 
+type size = {
+  rows: int,
+  columns: int,
+};
+
+type windowSize = {
+  pixelWidth: int,
+  pixelHeight: int,
+};
+
+type msg =
+  | InputKey(int32)
+  | Terminal(Terminal.msg)
+  | FontLoaded(Font.t)
+  | WindowSizeChanged(windowSize);
+
 let calculateRowsAndColumns = ({pixelWidth, pixelHeight, font, _}) => {
   switch (font) {
   | None => (0, 0)
   | Some(loadedFont) =>
-    let {characterWidth, lineHeight, _}: Msg.fontInfo = loadedFont;
+    let {characterWidth, lineHeight, _}: Font.t = loadedFont;
 
     let columns = int_of_float(float(pixelWidth) /. characterWidth);
     let rows = int_of_float(float(pixelHeight) /. lineHeight);
@@ -45,7 +62,7 @@ let checkResizeTerminalEffect = model => {
 
     // Effects can dispatch... so we need to map from the terminal messages
     // to our messages
-    effect |> Isolinear.Effect.map(msg => Msg.Terminal(msg));
+    effect |> Isolinear.Effect.map(msg => Terminal(msg));
   } else {
     // All good, we're at the right size - nothing to do.
     Isolinear.Effect.none;
@@ -53,35 +70,40 @@ let checkResizeTerminalEffect = model => {
 };
 
 let mapTerminalEffect = terminalEffect =>
-  terminalEffect |> Isolinear.Effect.map(msg => Msg.Terminal(msg));
+  terminalEffect |> Isolinear.Effect.map(msg => Terminal(msg));
 
-let updater = (model: t, msg: Msg.t) => {
+let updater = (model, msg) => {
   let noop = (model, Isolinear.Effect.none);
 
   switch (msg) {
-  | Msg.InputKey(key) => (
+  | InputKey(key) => (
       model,
       Terminal.Effects.input(~id=1, ~key) |> mapTerminalEffect,
     )
-  | Msg.Terminal(Resized(screen)) => (
+  | Terminal(ReveryTerminal.ScreenResized(screen)) => (
       {...model, screen},
       Isolinear.Effect.none,
     )
-  | Msg.Terminal(ScreenUpdated(screen)) => (
+  | Terminal(ReveryTerminal.ScreenUpdated(screen)) => (
       {...model, screen},
       Isolinear.Effect.none,
     )
-  | Msg.Terminal(CursorMoved(cursor)) => (
+  | Terminal(ReveryTerminal.CursorMoved(cursor)) => (
       {...model, cursor},
       Isolinear.Effect.none,
     )
-  | Msg.FontLoaded(font) =>
+  | FontLoaded(font) =>
     let newModel = {...model, font: Some(font)};
     (newModel, checkResizeTerminalEffect(newModel));
-  | Msg.WindowSizeChanged({pixelWidth, pixelHeight}) =>
+  | WindowSizeChanged({pixelWidth, pixelHeight}) =>
     let newModel = {...model, pixelWidth, pixelHeight};
     (newModel, checkResizeTerminalEffect(newModel));
   // TODO:
-  | Msg.Terminal(PropSet(_)) => noop
+  | Terminal(_) => noop
   };
+};
+
+let subscriptions = _model => {
+  Terminal.Sub.terminal(~id=1, ~cmd="/bin/bash", ~rows=40, ~columns=80)
+  |> Isolinear.Sub.map(msg => Terminal(msg));
 };

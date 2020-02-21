@@ -1,14 +1,4 @@
-type cursorPosition = {
-  row: int,
-  column: int,
-  visible: bool,
-};
-
-type msg =
-  | Resized(Screen.t)
-  | ScreenUpdated(Screen.t)
-  | PropSet(Vterm.TermProp.t)
-  | CursorMoved(cursorPosition);
+type msg = ReveryTerminal.effect;
 
 module Internal = {
   type t = {
@@ -17,12 +7,8 @@ module Internal = {
     input: in_channel,
     output: out_channel,
     inputThread: Thread.t,
-    vterm: Vterm.t,
-    screen: ref(Screen_Internal.t),
-    resizeStream: Isolinear.Stream.t(Screen.t),
-    screenUpdateStream: Isolinear.Stream.t(Screen.t),
-    cursorMoveStream: Isolinear.Stream.t(cursorPosition),
-    //termPropsStream: Isolinear.Stream.t(Vterm.TermProp.t),
+    terminal: ReveryTerminal.t,
+    effectStream: Isolinear.Stream.t(ReveryTerminal.effect),
     refCount: ref(int),
   };
 
@@ -34,77 +20,26 @@ module Internal = {
       incr(term.refCount);
       term;
     | None =>
-      let (resizeStream, resizeDispatch) = Isolinear.Stream.create();
-      let (screenUpdateStream, screenUpdateDispatch) =
-        Isolinear.Stream.create();
-      let (cursorMoveStream, cursorMoveDispatch) = Isolinear.Stream.create();
+      let (effectStream, effectDispatch) = Isolinear.Stream.create();
 
+      // Create pseudo-terminal pty
       let pty = Pty.create(~shellCmd=cmd);
       let fd = Pty.get_descr(pty);
       let input = Unix.in_channel_of_descr(fd);
       let output = Unix.out_channel_of_descr(fd);
-
       let () = Pty.resize(~rows, ~columns, pty);
 
-      let vterm = Vterm.make(~rows, ~cols=columns);
-      let screen =
-        ref(
-          Screen_Internal.initial |> Screen_Internal.resize(~rows, ~columns),
-        );
-      Vterm.setUtf8(~utf8=true, vterm);
-      Vterm.Screen.setAltScreen(~enabled=true, vterm);
+      let onEffect = (eff: ReveryTerminal.effect) => {
+        switch (eff) {
+        | Output(str) =>
+          // Send 'output' to terminal
+          output_string(output, str);
+          flush(output);
+        | eff => effectDispatch(eff)
+        };
+      };
 
-      Vterm.setOutputCallback(
-        ~onOutput=
-          str => {
-            output_string(output, str);
-            flush(output);
-          },
-        vterm,
-      );
-
-      Vterm.Screen.setMoveCursorCallback(
-        ~onMoveCursor=
-          (newPos, _oldPos, _visible) => {
-            cursorMoveDispatch({
-              row: newPos.row,
-              column: newPos.col,
-              visible: true,
-            })
-          },
-        vterm,
-      );
-
-      Vterm.Screen.setResizeCallback(
-        ~onResize=
-          ({rows, cols}) => {
-            screen := Screen_Internal.resize(~rows, ~columns=cols, screen^);
-            resizeDispatch(screen^);
-          },
-        vterm,
-      );
-
-      Vterm.Screen.setDamageCallback(
-        ~onDamage=
-          ({startRow, startCol, endRow, endCol}: Vterm.Rect.t) => {
-            let damages = ref([]);
-            for (x in startCol to endCol - 1) {
-              for (y in startRow to endRow - 1) {
-                let cell = Vterm.Screen.getCell(~row=y, ~col=x, vterm);
-                damages :=
-                  [
-                    Screen_Internal.DamageInfo.{row: y, col: x, cell},
-                    ...damages^,
-                  ];
-              };
-            };
-            screen := Screen_Internal.damaged(screen^, damages^);
-            let () = screenUpdateDispatch(screen^);
-            ();
-          },
-        vterm,
-      );
-
+      let terminal = ReveryTerminal.make(~rows, ~columns, ~onEffect);
       let inputThread: Thread.t =
         Thread.create(
           () => {
@@ -112,7 +47,7 @@ module Internal = {
               let c = input_char(input);
               let str = String.make(1, c);
               Revery.App.runOnMainThread(() => {
-                let _ = Vterm.write(~input=str, vterm);
+                let _ = ReveryTerminal.write(~input=str, terminal);
                 ();
               });
             }
@@ -126,13 +61,10 @@ module Internal = {
         fd,
         input,
         output,
-        vterm,
+        terminal,
         inputThread,
         refCount,
-        screen,
-        resizeStream,
-        screenUpdateStream,
-        cursorMoveStream,
+        effectStream,
       };
       Hashtbl.replace(idToTerminal, id, info);
       info;
@@ -182,26 +114,11 @@ module Sub = {
             ~columns=params.columns,
           );
 
-        let sub1 =
-          Isolinear.Stream.subscribe(info.resizeStream, screen => {
-            dispatch(Resized(screen))
+        let unsubscribe =
+          Isolinear.Stream.subscribe(info.effectStream, effect => {
+            dispatch(effect)
           });
 
-        let sub2 =
-          Isolinear.Stream.subscribe(info.screenUpdateStream, screen => {
-            dispatch(ScreenUpdated(screen))
-          });
-
-        let sub3 =
-          Isolinear.Stream.subscribe(info.cursorMoveStream, cursorPos => {
-            dispatch(CursorMoved(cursorPos))
-          });
-
-        let unsubscribe = () => {
-          sub1();
-          sub2();
-          sub3();
-        };
         {unsubscribe, id: params.id};
       };
 
@@ -225,31 +142,16 @@ module Effects = {
     Isolinear.Effect.create(~name="terminal.input", () => {
       switch (Hashtbl.find_opt(Internal.idToTerminal, id)) {
       | None => ()
-      | Some({vterm, _}) => Vterm.Keyboard.unichar(vterm, key, Vterm.None)
+      | Some({terminal, _}) => ReveryTerminal.input(~key, terminal)
       }
     });
   let resize = (~id: int, ~rows, ~columns) =>
     Isolinear.Effect.create(~name="terminal.input", () => {
       switch (Hashtbl.find_opt(Internal.idToTerminal, id)) {
       | None => ()
-      | Some({pty, vterm, screen, _}) =>
+      | Some({pty, terminal, _}) =>
         Pty.resize(~rows, ~columns, pty);
-        screen := Screen_Internal.resize(~rows, ~columns, screen^);
-        Vterm.setSize(~size={rows, cols: columns}, vterm);
-
-        // After the size changed - re-get all the cells
-        let damages = ref([]);
-        for (x in 0 to columns - 1) {
-          for (y in 0 to rows - 1) {
-            let cell = Vterm.Screen.getCell(~row=y, ~col=x, vterm);
-            damages :=
-              [
-                Screen_Internal.DamageInfo.{row: y, col: x, cell},
-                ...damages^,
-              ];
-          };
-        };
-        screen := Screen_Internal.damaged(screen^, damages^);
+        ReveryTerminal.resize(~rows, ~columns, terminal);
       }
     });
 };

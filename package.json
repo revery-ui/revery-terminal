@@ -46,7 +46,7 @@
 
   },
   "devDependencies": {
-    "ocaml": "~4.9.0",
+    "ocaml": "~4.8",
     "@opam/dune": "*",
     "@opam/merlin": "*",
     "esy-macdylibbundler": "*"
