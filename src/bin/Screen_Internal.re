@@ -22,7 +22,7 @@ let getCell = (~row, ~column, screen) => {
   };
 };
 
-let updateCell = ({ columns, cells, _}, damage: DamageInfo.t) => {
+let updateCell = ({columns, cells, _}, damage: DamageInfo.t) => {
   let idx = damage.row * columns + damage.col;
   cells[idx] = damage.cell;
 };
