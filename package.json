@@ -38,8 +38,7 @@
     "@opam/cmdliner": "1.0.2",
     "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755",
     "timber": "glennsl/timber#ae065bb",
-    "reason-harfbuzz": "revery-ui/reason-harfbuzz#0848520",
-    "@reason-native/rely": "3.1.0"
+    "reason-harfbuzz": "revery-ui/reason-harfbuzz#0848520"
   },
   "scripts": {
    "format": "esy dune build @fmt --auto-promote",
