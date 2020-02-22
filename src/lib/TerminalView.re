@@ -86,13 +86,17 @@ let make = (~screen: Screen.t, ~cursor: Cursor.t, ~font: Font.t, ()) => {
 
             Skia.Paint.setColor(textPaint, fgColor);
             if (String.length(cell.chars) > 0) {
-              CanvasContext.drawText(
-                ~paint=textPaint,
-                ~x=float(column) *. characterWidth,
-                ~y=float(row) *. lineHeight +. characterHeight,
-                ~text=String.make(1, cell.chars.[0]),
-                canvasContext,
-              );
+              let char = cell.chars.[0];
+              let code = Char.code(char);
+              if (code != 0) {
+                CanvasContext.drawText(
+                  ~paint=textPaint,
+                  ~x=float(column) *. characterWidth,
+                  ~y=float(row) *. lineHeight +. characterHeight,
+                  ~text=String.make(1, cell.chars.[0]),
+                  canvasContext,
+                );
+              };
             };
           };
         };
