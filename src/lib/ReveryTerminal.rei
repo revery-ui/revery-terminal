@@ -42,7 +42,7 @@ type unsubscribe = unit => unit;
 
 let make: (~rows: int, ~columns: int, ~onEffect: effect => unit) => t;
 
-let write: (~input: string, t) => int;
+let write: (~input: string, t) => unit;
 let input: (~key: int32, t) => unit;
 let resize: (~rows: int, ~columns: int, t) => unit;
 
