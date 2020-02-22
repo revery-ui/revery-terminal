@@ -83,13 +83,6 @@ let resize = (~rows, ~columns, {vterm, screen, _}) => {
 
 let write = (~input: string, {vterm, _}) => {
   Vterm.write(~input, vterm);
-
-  input
-  |> String.iteri((i, c) =>
-       print_endline(Printf.sprintf("idx: %d |%c|%d", i, c, Char.code(c)))
-     );
-
-  0;
 };
 
 let input = (~key: int32, {vterm, _}) => {
