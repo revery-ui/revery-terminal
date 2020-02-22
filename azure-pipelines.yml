@@ -51,10 +51,9 @@ jobs:
 
    variables:
    STAGING_DIRECTORY: C:\Users\VssAdministrator\STAGING
-   STAGING_DIRECTORY_UNIX: /C/Users/VssAdministrator/STAGING
-    ESY__CACHE_INSTALL_PATH: /C/Users/VssAdministrator/.esy/3_/i
-    ESY__CACHE_SOURCE_TARBALL_PATH: /C/Users/VssAdministrator/.esy/source/i
-    ESY__NPM_ROOT: /C/npm/prefix/node_modules/esy
+   ESY__CACHE_INSTALL_PATH: /C/Users/VssAdministrator/.esy/3_/i
+   ESY__CACHE_SOURCE_TARBALL_PATH: /C/Users/VssAdministrator/.esy/source/i
+   # ESY__NPM_ROOT: /C/npm/prefix/node_modules/esy
 
   steps:
   - template: .ci/use-node.yml
