@@ -11,7 +11,11 @@ let make = (~size, font: Revery.Font.t) => {
   let {height, lineHeight, _}: Revery.Font.FontMetrics.t =
     Revery.Font.getMetrics(font, fontSize);
   let {width, _}: Revery.Font.measureResult =
-    Revery.Font.measure(font, fontSize, "M");
+    Revery.Font.measure(
+     ~smoothing=Revery.Font.Smoothing.default,
+    font, 
+    fontSize, 
+    "M");
 
   {
     font,
