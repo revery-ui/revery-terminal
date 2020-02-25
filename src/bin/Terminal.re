@@ -33,8 +33,8 @@ module Internal = {
         switch (eff) {
         | Output(str) =>
           // Send 'output' to terminal
-            output_string(output, str);
-            flush(output);
+          output_string(output, str);
+          flush(output);
         | eff => effectDispatch(eff)
         };
       };
