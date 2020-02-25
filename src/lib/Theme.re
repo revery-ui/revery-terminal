@@ -174,7 +174,7 @@ let default = fun
 | 166 => rgb(215,95,0)
 | 167	=> rgb(215,95,95)
 | 168	=> rgb(215,95,135)
-| 179 => rgb(215,95,175)
+| 169 => rgb(215,95,175)
 | 170 => rgb(215,95,215)
 | 171 => rgb(215,95,255)
 | 172 => rgb(215,135,0)
@@ -263,4 +263,4 @@ let default = fun
 | 255 => rgb(238,238,238)
 // I don't think we'd hit a case greater than 255...
 // ...but make it obvious with magenta if we do.
-| _ => rgb(255, 0, 255)
+| idx =>  rgb(255, 0, 255)

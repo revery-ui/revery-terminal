@@ -18,7 +18,9 @@ let make = (~theme=Theme.default, ~screen: Screen.t, ~cursor: Cursor.t, ~font: F
 
   let getColor = (color: Vterm.Color.t) => {
     switch (color) {
-    | DefaultBackground => theme(0)
+    | DefaultBackground => 
+      print_endline ("DEFAULT BACKGROUND")
+      theme(0)
     | DefaultForeground => theme(15)
     | Rgb(r, g, b) =>
       Skia.Color.makeArgb(
