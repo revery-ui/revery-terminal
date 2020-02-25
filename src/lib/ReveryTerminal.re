@@ -85,8 +85,8 @@ let write = (~input: string, {vterm, _}) => {
   Vterm.write(~input, vterm) |> (ignore: int => unit);
 };
 
-let input = (~key: int32, {vterm, _}) => {
-  Vterm.Keyboard.unichar(vterm, key, Vterm.None);
+let input = (~modifier=Vterm.None, ~key: Vterm.key, {vterm, _}) => {
+  Vterm.Keyboard.input(vterm, key, Vterm.None);
 };
 
 let render = (~font, ~screen, ~cursor) => <TerminalView screen cursor font />;

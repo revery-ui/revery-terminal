@@ -7,7 +7,7 @@ module Sub: {
 };
 
 module Effects: {
-  let input: (~id: int, ~key: int32) => Isolinear.Effect.t(msg);
+  let input: (~id: int, ~key: Vterm.key) => Isolinear.Effect.t(msg);
   let resize:
     (~id: int, ~rows: int, ~columns: int) => Isolinear.Effect.t(msg);
 };

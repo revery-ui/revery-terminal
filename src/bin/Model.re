@@ -30,7 +30,7 @@ type windowSize = {
 };
 
 type msg =
-  | InputKey(int32)
+  | InputKey(Vterm.key)
   | Terminal(Terminal.msg)
   | FontLoaded(Font.t)
   | WindowSizeChanged(windowSize);

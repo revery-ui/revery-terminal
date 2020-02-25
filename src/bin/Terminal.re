@@ -138,7 +138,7 @@ module Sub = {
 };
 
 module Effects = {
-  let input = (~id: int, ~key: int32) =>
+  let input = (~id: int, ~key) =>
     Isolinear.Effect.create(~name="terminal.input", () => {
       switch (Hashtbl.find_opt(Internal.idToTerminal, id)) {
       | None => ()
