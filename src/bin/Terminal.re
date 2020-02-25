@@ -33,13 +33,8 @@ module Internal = {
         switch (eff) {
         | Output(str) =>
           // Send 'output' to terminal
-          if (str.[0] |> Char.code == 27) {
-            String.iter(c => output_char(output, c), str);
-            flush(output);
-          } else {
             output_string(output, str);
             flush(output);
-          }
         | eff => effectDispatch(eff)
         };
       };
