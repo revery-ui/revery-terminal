@@ -6,6 +6,12 @@ module Cursor: {
   };
 };
 
+module Theme: {
+  type t = (int) => Skia.Color.t;
+
+  let default: t;
+};
+
 module Font: {
   type t = {
     font: Revery.Font.t,
@@ -47,4 +53,4 @@ let input: (~modifier: Vterm.modifier=?, ~key: Vterm.key, t) => unit;
 let resize: (~rows: int, ~columns: int, t) => unit;
 
 let render:
-  (~font: Font.t, ~screen: Screen.t, ~cursor: Cursor.t) => Revery.UI.element;
+  (~theme: Theme.t=?, ~font: Font.t, ~cursor: Cursor.t, Screen.t) => Revery.UI.element;

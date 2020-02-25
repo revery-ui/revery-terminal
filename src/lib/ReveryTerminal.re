@@ -1,6 +1,7 @@
 module Cursor = Cursor;
 module Font = Font;
 module Screen = Screen;
+module Theme = Theme;
 
 type effect =
   | ScreenResized(Screen.t)
@@ -89,4 +90,4 @@ let input = (~modifier=Vterm.None, ~key: Vterm.key, {vterm, _}) => {
   Vterm.Keyboard.input(vterm, key, modifier);
 };
 
-let render = (~font, ~screen, ~cursor) => <TerminalView screen cursor font />;
+let render = (~theme=Theme.default, ~font, ~cursor, screen) => <TerminalView theme screen cursor font />;

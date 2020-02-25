@@ -28,10 +28,11 @@
   },
   "dependencies": {
     "revery": "0.29.0",
-    "reason-libvterm": "github:revery-ui/reason-libvterm#f91387d",
+    "reason-libvterm": "*",
     "isolinear": "^3.0.0"
   },
   "resolutions": {
+    "reason-libvterm": "link:../reason-libvterm",
     "revery": "revery-ui/revery#5438851",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
