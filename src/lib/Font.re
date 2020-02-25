@@ -8,10 +8,11 @@ type t = {
 
 let make = (~size, font: Revery.Font.t) => {
   let fontSize = size;
+  let smoothing = Revery.Font.Smoothing.default;
   let {height, lineHeight, _}: Revery.Font.FontMetrics.t =
     Revery.Font.getMetrics(font, fontSize);
   let {width, _}: Revery.Font.measureResult =
-    Revery.Font.measure(font, fontSize, "M");
+    Revery.Font.measure(~smoothing, font, fontSize, "M");
 
   {
     font,
