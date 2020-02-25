@@ -3,7 +3,14 @@ module Colors = Revery.Colors;
 open Revery.Draw;
 open Revery.UI;
 
-let make = (~theme=Theme.default, ~screen: Screen.t, ~cursor: Cursor.t, ~font: Font.t, ()) => {
+let make =
+    (
+      ~theme=Theme.default,
+      ~screen: Screen.t,
+      ~cursor: Cursor.t,
+      ~font: Font.t,
+      (),
+    ) => {
   let containerStyle =
     Style.[
       backgroundColor(Colors.black),
@@ -18,9 +25,9 @@ let make = (~theme=Theme.default, ~screen: Screen.t, ~cursor: Cursor.t, ~font: F
 
   let getColor = (color: Vterm.Color.t) => {
     switch (color) {
-    | DefaultBackground => 
-      print_endline ("DEFAULT BACKGROUND")
-      theme(0)
+    | DefaultBackground =>
+      print_endline("DEFAULT BACKGROUND");
+      theme(0);
     | DefaultForeground => theme(15)
     | Rgb(r, g, b) =>
       Skia.Color.makeArgb(
