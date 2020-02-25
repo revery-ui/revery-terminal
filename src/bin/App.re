@@ -83,6 +83,7 @@ let init = app => {
             | 8 => Some(Backspace)
             | 9 => Some(Tab)
             | 13 => Some(Enter)
+            | 13 => Some(Escape)
             | 127 => Some(Delete)
             | 1073741898 => Some(Home)
             | 1073741899 => Some(PageUp)
