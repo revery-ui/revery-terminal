@@ -28,12 +28,11 @@
   },
   "dependencies": {
     "revery": "0.29.0",
-    "reason-libvterm": "*",
+    "reason-libvterm": "github:revery-ui/reason-libvterm#f91387d",
     "isolinear": "^3.0.0"
   },
   "resolutions": {
     "revery": "revery-ui/revery#5438851",
-    "reason-libvterm": "revery-ui/reason-libvterm#8a42484",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
     "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755",

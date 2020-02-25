@@ -30,7 +30,7 @@ type windowSize = {
 };
 
 type msg =
-  | InputKey(int32)
+  | InputKey(Vterm.key, Vterm.modifier)
   | Terminal(Terminal.msg)
   | FontLoaded(Font.t)
   | WindowSizeChanged(windowSize);
@@ -76,9 +76,9 @@ let updater = (model, msg) => {
   let noop = (model, Isolinear.Effect.none);
 
   switch (msg) {
-  | InputKey(key) => (
+  | InputKey(key, modifier) => (
       model,
-      Terminal.Effects.input(~id=1, ~key) |> mapTerminalEffect,
+      Terminal.Effects.input(~id=1, ~key, ~modifier) |> mapTerminalEffect,
     )
   | Terminal(ReveryTerminal.ScreenResized(screen)) => (
       {...model, screen},

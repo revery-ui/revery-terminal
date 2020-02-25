@@ -138,11 +138,12 @@ module Sub = {
 };
 
 module Effects = {
-  let input = (~id: int, ~key: int32) =>
+  let input = (~id: int, ~key, ~modifier) =>
     Isolinear.Effect.create(~name="terminal.input", () => {
       switch (Hashtbl.find_opt(Internal.idToTerminal, id)) {
       | None => ()
-      | Some({terminal, _}) => ReveryTerminal.input(~key, terminal)
+      | Some({terminal, _}) =>
+        ReveryTerminal.input(~modifier, ~key, terminal)
       }
     });
   let resize = (~id: int, ~rows, ~columns) =>

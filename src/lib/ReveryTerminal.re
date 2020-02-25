@@ -24,7 +24,7 @@ let make = (~rows: int, ~columns: int, ~onEffect as dispatch) => {
   Vterm.setUtf8(~utf8=true, vterm);
   Vterm.Screen.setAltScreen(~enabled=true, vterm);
 
-  Vterm.setOutputCallback(~onOutput=str => dispatch(Output(str)), vterm);
+  Vterm.setOutputCallback(~onOutput=str => {dispatch(Output(str))}, vterm);
 
   Vterm.Screen.setMoveCursorCallback(
     ~onMoveCursor=
@@ -85,8 +85,8 @@ let write = (~input: string, {vterm, _}) => {
   Vterm.write(~input, vterm) |> (ignore: int => unit);
 };
 
-let input = (~key: int32, {vterm, _}) => {
-  Vterm.Keyboard.unichar(vterm, key, Vterm.None);
+let input = (~modifier=Vterm.None, ~key: Vterm.key, {vterm, _}) => {
+  Vterm.Keyboard.input(vterm, key, modifier);
 };
 
 let render = (~font, ~screen, ~cursor) => <TerminalView screen cursor font />;
