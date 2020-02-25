@@ -55,7 +55,7 @@ let init = app => {
       String.iter(
         c => {
           let charCode = Char.code(c) |> Uchar.of_int;
-          Store.dispatch(InputKey(Unicode(charCode)));
+          Store.dispatch(InputKey(Unicode(charCode), None));
         },
         text,
       )
@@ -66,27 +66,37 @@ let init = app => {
       window,
       (keyEvent: Key.KeyEvent.t) => {
         open Vterm;
-        let {keycode, _}: Key.KeyEvent.t = keyEvent;
+        let {keycode, keymod, _}: Key.KeyEvent.t = keyEvent;
 
-        let key =
-          switch (keycode) {
-          // From: https://wiki.libsdl.org/SDLKeycodeLookup
-          | 8 => Some(Backspace)
-          | 9 => Some(Tab)
-          | 13 => Some(Enter)
-          | 127 => Some(Delete)
-          | 1073741898 => Some(Home)
-          | 1073741899 => Some(PageUp)
-          | 1073741901 => Some(End)
-          | 1073741902 => Some(PageDown)
-          | 1073741903 => Some(Right)
-          | 1073741904 => Some(Left)
-          | 1073741905 => Some(Down)
-          | 1073741906 => Some(Up)
-          | _ => None
+        if (Key.Keymod.isControlDown(keymod)) {
+          let keyName =
+            Key.Keycode.getName(keycode) |> String.lowercase_ascii;
+          // Only handle simple ascii case for now
+          if (String.length(keyName) == 1) {
+            let uchar = keyName.[0] |> Char.code |> Uchar.of_int;
+            Store.dispatch(InputKey(Unicode(uchar), Control));
           };
+        } else {
+          let key =
+            switch (keycode) {
+            // From: https://wiki.libsdl.org/SDLKeycodeLookup
+            | 8 => Some(Backspace)
+            | 9 => Some(Tab)
+            | 13 => Some(Enter)
+            | 127 => Some(Delete)
+            | 1073741898 => Some(Home)
+            | 1073741899 => Some(PageUp)
+            | 1073741901 => Some(End)
+            | 1073741902 => Some(PageDown)
+            | 1073741903 => Some(Right)
+            | 1073741904 => Some(Left)
+            | 1073741905 => Some(Down)
+            | 1073741906 => Some(Up)
+            | _ => None
+            };
 
-        key |> Option.iter(k => Store.dispatch(InputKey(k)));
+          key |> Option.iter(k => Store.dispatch(InputKey(k, None)));
+        };
       },
     );
 

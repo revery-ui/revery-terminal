@@ -33,8 +33,13 @@ module Internal = {
         switch (eff) {
         | Output(str) =>
           // Send 'output' to terminal
-          output_string(output, str);
-          flush(output);
+          if (str.[0] |> Char.code == 27) {
+            String.iter(c => output_char(output, c), str);
+            flush(output);
+          } else {
+            output_string(output, str);
+            flush(output);
+          }
         | eff => effectDispatch(eff)
         };
       };
@@ -138,11 +143,12 @@ module Sub = {
 };
 
 module Effects = {
-  let input = (~id: int, ~key) =>
+  let input = (~id: int, ~key, ~modifier) =>
     Isolinear.Effect.create(~name="terminal.input", () => {
       switch (Hashtbl.find_opt(Internal.idToTerminal, id)) {
       | None => ()
-      | Some({terminal, _}) => ReveryTerminal.input(~key, terminal)
+      | Some({terminal, _}) =>
+        ReveryTerminal.input(~modifier, ~key, terminal)
       }
     });
   let resize = (~id: int, ~rows, ~columns) =>
