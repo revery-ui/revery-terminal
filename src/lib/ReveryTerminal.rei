@@ -19,9 +19,11 @@ module Font: {
     lineHeight: float,
     characterHeight: float,
     characterWidth: float,
+    smoothing: Revery.Font.Smoothing.t,
   };
 
-  let make: (~size: float, Revery.Font.t) => t;
+  let make:
+    (~smoothing: Revery.Font.Smoothing.t=?, ~size: float, Revery.Font.t) => t;
 };
 
 module Screen: {

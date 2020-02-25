@@ -4,11 +4,12 @@ type t = {
   lineHeight: float,
   characterHeight: float,
   characterWidth: float,
+  smoothing: Revery.Font.Smoothing.t,
 };
 
-let make = (~size, font: Revery.Font.t) => {
+let make =
+    (~smoothing=Revery.Font.Smoothing.default, ~size, font: Revery.Font.t) => {
   let fontSize = size;
-  let smoothing = Revery.Font.Smoothing.default;
   let {height, lineHeight, _}: Revery.Font.FontMetrics.t =
     Revery.Font.getMetrics(font, fontSize);
   let {width, _}: Revery.Font.measureResult =
@@ -20,5 +21,6 @@ let make = (~size, font: Revery.Font.t) => {
     lineHeight,
     characterHeight: height,
     characterWidth: width,
+    smoothing,
   };
 };
