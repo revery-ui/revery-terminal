@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "revery": "0.29.0",
-    "reason-libvterm": "github:revery-ui/reason-libvterm#f91387d",
+    "reason-libvterm": "github:revery-ui/reason-libvterm#e0737be",
     "isolinear": "^3.0.0"
   },
   "resolutions": {

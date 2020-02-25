@@ -25,7 +25,7 @@ let init = app => {
 
   let render = ({screen, cursor, font, _}: Model.t) =>
     font
-    |> Option.map(font => ReveryTerminal.render(~font, ~screen, ~cursor))
+    |> Option.map(font => ReveryTerminal.render(~font, ~cursor, screen))
     |> Option.value(~default=emptyElement);
 
   // ...wire up any state changes to trigger a redraw of the UI
