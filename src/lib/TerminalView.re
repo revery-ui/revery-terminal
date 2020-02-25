@@ -25,9 +25,7 @@ let make =
 
   let getColor = (color: Vterm.Color.t) => {
     switch (color) {
-    | DefaultBackground =>
-      print_endline("DEFAULT BACKGROUND");
-      theme(0);
+    | DefaultBackground => theme(0)
     | DefaultForeground => theme(15)
     | Rgb(r, g, b) =>
       Skia.Color.makeArgb(
