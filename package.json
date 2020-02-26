@@ -29,14 +29,14 @@
   "dependencies": {
     "revery": "0.29.0",
     "reason-libvterm": "github:revery-ui/reason-libvterm#e0737be",
-    "isolinear": "^3.0.0"
+    "isolinear": "^3.0.0",
+    "@glennsl/timber": "1.0.0"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#e7bcb42",
+    "revery": "glennsl/revery#a3fd3da",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
     "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755",
-    "timber": "glennsl/timber#ae065bb",
     "reason-harfbuzz": "revery-ui/reason-harfbuzz#0848520"
   },
   "scripts": {
