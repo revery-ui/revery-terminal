@@ -1,4 +1,3 @@
-open Terminal;
 open ReveryTerminal;
 
 // This type [t] is the heart of our app - the entire state

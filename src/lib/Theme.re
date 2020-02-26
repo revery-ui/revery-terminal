@@ -270,4 +270,4 @@ let default =
   | 255 => rgb(238, 238, 238)
   // I don't think we'd hit a case greater than 255...
   // ...but make it obvious with magenta if we do.
-  | idx => rgb(255, 0, 255);
+  | _ => rgb(255, 0, 255);
