@@ -95,9 +95,7 @@ let make =
           for (row in 0 to rows - 1) {
             let cell = Screen.getCell(~row, ~column, screen);
 
-            prerr_endline("GET BG COLOR");
             let bgColor = getBgColor(cell);
-            prerr_endline("GET BG COLOR DONE");
             if (bgColor != defaultBackgroundColor) {
               Skia.Paint.setColor(backgroundPaint, bgColor);
               CanvasContext.drawRectLtwh(
