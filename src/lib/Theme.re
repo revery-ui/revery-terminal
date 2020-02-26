@@ -1,12 +1,6 @@
-type t = int => Skia.Color.t;
+type t = int => Revery.Color.t;
 
-let rgb = (r, g, b) =>
-  Skia.Color.makeArgb(
-    255l,
-    r |> Int32.of_int,
-    g |> Int32.of_int,
-    b |> Int32.of_int,
-  );
+let rgb = Revery.Color.rgb_int;
 
 let default =
   fun
