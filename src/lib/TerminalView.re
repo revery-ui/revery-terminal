@@ -50,7 +50,14 @@ let make =
     <Canvas
       style=containerStyle
       render={canvasContext => {
-        let {font, lineHeight, characterWidth, characterHeight, fontSize}: Font.t = font;
+        let {
+          font,
+          lineHeight,
+          characterWidth,
+          characterHeight,
+          fontSize,
+          smoothing,
+        }: Font.t = font;
         let defaultBackground = Colors.black |> Color.toSkia;
 
         let backgroundPaint = Skia.Paint.make();
@@ -60,8 +67,8 @@ let make =
         let typeFace = Revery.Font.getSkiaTypeface(font);
         Skia.Paint.setTypeface(textPaint, typeFace);
         Skia.Paint.setTextSize(textPaint, fontSize);
-        Skia.Paint.setAntiAlias(textPaint, true);
-        Skia.Paint.setSubpixelText(textPaint, true);
+        Revery.Font.Smoothing.setPaint(smoothing, textPaint);
+
         Skia.Paint.setLcdRenderText(textPaint, true);
 
         let columns = Screen.getColumns(screen);
