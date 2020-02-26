@@ -13,17 +13,17 @@ let make =
       ~font: Font.t,
       (),
     ) => {
+  let bg =
+    switch (defaultBackground) {
+    | Some(v) => v
+    | None => theme(0)
+    };
 
-
-  let bg = switch (defaultBackground) {
-  | Some(v) => v
-  | None => theme(0);
-  };
-
-  let fg = switch (defaultForeground) {
-  | Some(v) => v
-  | None => theme(15);
-  };
+  let fg =
+    switch (defaultForeground) {
+    | Some(v) => v
+    | None => theme(15)
+    };
 
   let containerStyle =
     Style.[
@@ -38,25 +38,20 @@ let make =
     ];
 
   let getColor = (color: Vterm.Color.t) => {
-    let outColor = switch (color) {
-    | DefaultBackground => 
-      bg
-    | DefaultForeground => 
-      fg
-    | Rgb(r, g, b) =>
-      if (r == 0 && g == 0 && b == 0) {
-        bg 
-      } else if (r == 240 && g == 240 && b == 240) {
-        fg
-      } else {
-      Revery.Color.rgb_int(
-        r,
-        g,
-        b,
-      )
-      }
-    | Index(idx) => theme(idx)
-    };
+    let outColor =
+      switch (color) {
+      | DefaultBackground => bg
+      | DefaultForeground => fg
+      | Rgb(r, g, b) =>
+        if (r == 0 && g == 0 && b == 0) {
+          bg;
+        } else if (r == 240 && g == 240 && b == 240) {
+          fg;
+        } else {
+          Revery.Color.rgb_int(r, g, b);
+        }
+      | Index(idx) => theme(idx)
+      };
 
     Revery.Color.toSkia(outColor);
   };
@@ -100,9 +95,9 @@ let make =
           for (row in 0 to rows - 1) {
             let cell = Screen.getCell(~row, ~column, screen);
 
-              prerr_endline ("GET BG COLOR");
+            prerr_endline("GET BG COLOR");
             let bgColor = getBgColor(cell);
-              prerr_endline ("GET BG COLOR DONE");
+            prerr_endline("GET BG COLOR DONE");
             if (bgColor != defaultBackgroundColor) {
               Skia.Paint.setColor(backgroundPaint, bgColor);
               CanvasContext.drawRectLtwh(

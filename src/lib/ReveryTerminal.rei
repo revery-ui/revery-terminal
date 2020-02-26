@@ -56,6 +56,11 @@ let resize: (~rows: int, ~columns: int, t) => unit;
 
 let render:
   (
-   ~defaultForeground: Revery.Color.t=?,
-   ~defaultBackground: Revery.Color.t=?, ~theme: Theme.t=?, ~font: Font.t, ~cursor: Cursor.t, Screen.t) =>
+    ~defaultForeground: Revery.Color.t=?,
+    ~defaultBackground: Revery.Color.t=?,
+    ~theme: Theme.t=?,
+    ~font: Font.t,
+    ~cursor: Cursor.t,
+    Screen.t
+  ) =>
   Revery.UI.element;
