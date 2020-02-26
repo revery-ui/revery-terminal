@@ -33,7 +33,7 @@
     "@glennsl/timber": "1.0.0"
   },
   "resolutions": {
-    "revery": "glennsl/revery#a3fd3da",
+    "revery": "revery-ui/revery#fd90042",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
     "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755",
