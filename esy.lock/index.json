@@ -1,5 +1,5 @@
 {
-  "checksum": "b43055442dc7d15f35c59e0b69cf8473",
+  "checksum": "a4dcaffc781e7df8db6280d19bc21dfe",
   "root": "revery-terminal@link-dev:./package.json",
   "node": {
     "yarn-pkg-config@github:esy-ocaml/yarn-pkg-config#cca65f99674ed2d954d28788edeb8c57fada5ed0@d41d8cd9": {
@@ -77,7 +77,7 @@
       "dependencies": [
         "revery@github:revery-ui/revery#5438851@d41d8cd9",
         "reason-libvterm@github:revery-ui/reason-libvterm#e0737be@d41d8cd9",
-        "isolinear@3.0.0@d41d8cd9"
+        "isolinear@github:revery-ui/isolinear#9014a10@d41d8cd9"
       ],
       "devDependencies": [
         "ocaml@4.8.1000@d41d8cd9", "esy-macdylibbundler@0.4.5@d41d8cd9",
@@ -333,22 +333,20 @@
       "dependencies": [],
       "devDependencies": []
     },
-    "isolinear@3.0.0@d41d8cd9": {
-      "id": "isolinear@3.0.0@d41d8cd9",
+    "isolinear@github:revery-ui/isolinear#9014a10@d41d8cd9": {
+      "id": "isolinear@github:revery-ui/isolinear#9014a10@d41d8cd9",
       "name": "isolinear",
-      "version": "3.0.0",
+      "version": "github:revery-ui/isolinear#9014a10",
       "source": {
         "type": "install",
-        "source": [
-          "archive:https://registry.npmjs.org/isolinear/-/isolinear-3.0.0.tgz#sha1:493bed7c568d883607e7fd7f1a423d5a6f841515"
-        ]
+        "source": [ "github:revery-ui/isolinear#9014a10" ]
       },
       "overrides": [],
       "dependencies": [
         "refmterr@3.3.0@d41d8cd9", "ocaml@4.8.1000@d41d8cd9",
         "@opam/dune@opam:1.11.4@a7ccb7ae", "@esy-ocaml/reason@3.5.2@d41d8cd9"
       ],
-      "devDependencies": []
+      "devDependencies": [ "ocaml@4.8.1000@d41d8cd9" ]
     },
     "flex@1.2.2@d41d8cd9": {
       "id": "flex@1.2.2@d41d8cd9",
