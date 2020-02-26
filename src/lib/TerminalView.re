@@ -5,15 +5,29 @@ open Revery.UI;
 
 let make =
     (
+      ~defaultBackground=?,
+      ~defaultForeground=?,
       ~theme=Theme.default,
       ~screen: Screen.t,
       ~cursor: Cursor.t,
       ~font: Font.t,
       (),
     ) => {
+
+
+  let bg = switch (defaultBackground) {
+  | Some(v) => v
+  | None => theme(0);
+  };
+
+  let fg = switch (defaultForeground) {
+  | Some(v) => v
+  | None => theme(15);
+  };
+
   let containerStyle =
     Style.[
-      backgroundColor(Colors.black),
+      backgroundColor(bg),
       position(`Absolute),
       justifyContent(`Center),
       alignItems(`Center),
@@ -24,18 +38,27 @@ let make =
     ];
 
   let getColor = (color: Vterm.Color.t) => {
-    switch (color) {
-    | DefaultBackground => theme(0)
-    | DefaultForeground => theme(15)
+    let outColor = switch (color) {
+    | DefaultBackground => 
+      bg
+    | DefaultForeground => 
+      fg
     | Rgb(r, g, b) =>
-      Skia.Color.makeArgb(
-        255l,
-        r |> Int32.of_int,
-        g |> Int32.of_int,
-        b |> Int32.of_int,
+      if (r == 0 && g == 0 && b == 0) {
+        bg 
+      } else if (r == 240 && g == 240 && b == 240) {
+        fg
+      } else {
+      Revery.Color.rgb_int(
+        r,
+        g,
+        b,
       )
+      }
     | Index(idx) => theme(idx)
     };
+
+    Revery.Color.toSkia(outColor);
   };
 
   let getFgColor = (cell: Vterm.ScreenCell.t) => {
@@ -58,7 +81,7 @@ let make =
           fontSize,
           smoothing,
         }: Font.t = font;
-        let defaultBackground = Colors.black |> Color.toSkia;
+        let defaultBackgroundColor = bg |> Color.toSkia;
 
         let backgroundPaint = Skia.Paint.make();
         Skia.Paint.setAntiAlias(backgroundPaint, false);
@@ -77,8 +100,10 @@ let make =
           for (row in 0 to rows - 1) {
             let cell = Screen.getCell(~row, ~column, screen);
 
+              prerr_endline ("GET BG COLOR");
             let bgColor = getBgColor(cell);
-            if (bgColor != defaultBackground) {
+              prerr_endline ("GET BG COLOR DONE");
+            if (bgColor != defaultBackgroundColor) {
               Skia.Paint.setColor(backgroundPaint, bgColor);
               CanvasContext.drawRectLtwh(
                 ~paint=backgroundPaint,
@@ -117,7 +142,7 @@ let make =
 
         // If the cursor is visible, let's paint it now
         if (cursor.visible) {
-          Skia.Paint.setColor(textPaint, Colors.white |> Color.toSkia);
+          Skia.Paint.setColor(textPaint, getColor(DefaultForeground));
           CanvasContext.drawRectLtwh(
             ~paint=textPaint,
             ~left=float(cursor.column) *. characterWidth,

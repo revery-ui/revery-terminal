@@ -90,5 +90,5 @@ let input = (~modifier=Vterm.None, ~key: Vterm.key, {vterm, _}) => {
   Vterm.Keyboard.input(vterm, key, modifier);
 };
 
-let render = (~theme=Theme.default, ~font, ~cursor, screen) =>
-  <TerminalView theme screen cursor font />;
+let render = (~defaultForeground=?, ~defaultBackground=?, ~theme=Theme.default, ~font, ~cursor, screen) =>
+  <TerminalView ?defaultForeground ?defaultBackground theme screen cursor font />;
