@@ -1,5 +1,3 @@
-
-
 type t;
 
 let push: (~cells: array(Vterm.ScreenCell.t), t) => t;
