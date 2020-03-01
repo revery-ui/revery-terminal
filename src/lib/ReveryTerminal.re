@@ -47,6 +47,15 @@ let make = (~rows: int, ~columns: int, ~onEffect as dispatch) => {
     vterm,
   );
 
+  Vterm.Screen.setScrollbackPushCallback(
+    ~onPushLine=(_) => prerr_endline("Pushed!"),
+    vterm
+  );
+  Vterm.Screen.setScrollbackPopCallback(
+    ~onPopLine=(_) => prerr_endline("Popped!"),
+    vterm
+  );
+
   Vterm.Screen.setDamageCallback(
     ~onDamage=
       ({startRow, startCol, endRow, endCol}: Vterm.Rect.t) => {
@@ -63,6 +72,10 @@ let make = (~rows: int, ~columns: int, ~onEffect as dispatch) => {
       },
     vterm,
   );
+
+  Vterm.Screen.setTermPropCallback(~onSetTermProp=prop => {
+    dispatch(TermPropChanged(prop));
+  }, vterm);
 
   {screen, vterm, cursor};
 };

@@ -69,6 +69,12 @@ let checkResizeTerminalEffect = model => {
   };
 };
 
+
+let termPropEffect = prop => {
+  prerr_endline ("PROP: " ++ Vterm.TermProp.toString(prop));
+  Isolinear.Effect.none;
+};
+
 let mapTerminalEffect = terminalEffect =>
   terminalEffect |> Isolinear.Effect.map(msg => Terminal(msg));
 
@@ -92,6 +98,10 @@ let updater = (model, msg) => {
       {...model, cursor},
       Isolinear.Effect.none,
     )
+  | Terminal(ReveryTerminal.TermPropChanged(prop)) => (
+    model,
+    termPropEffect(prop),
+  )
   | FontLoaded(font) =>
     let newModel = {...model, font: Some(font)};
     (newModel, checkResizeTerminalEffect(newModel));
