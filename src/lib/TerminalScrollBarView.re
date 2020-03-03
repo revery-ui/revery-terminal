@@ -33,9 +33,6 @@ let make =
 
   let maximumValue = totalSize -. screenSize;
 
-  print_endline("Slider height: " ++ string_of_int(height));
-  print_endline("Thumb height: " ++ string_of_int(thumbLength));
-
   <Slider
     onValueChanged={v => onScroll(v)}
     vertical=true
