@@ -28,13 +28,17 @@ module Font: {
 
 module Screen: {
   type t;
+  
+  let initial: t;
 
   let getCell: (~row: int, ~column: int, t) => Vterm.ScreenCell.t;
+  let getScreenCell: (~row: int, ~column: int, t) => Vterm.ScreenCell.t;
 
-  let getRows: t => int;
+  // Get total rows, including scrollback
+  let getTotalRows: t => int;
+
+  let getScreenRows: t => int;
   let getColumns: t => int;
-
-  let initial: t;
 };
 
 type effect =

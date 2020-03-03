@@ -90,48 +90,59 @@ let make =
         Skia.Paint.setLcdRenderText(textPaint, true);
 
         let columns = Screen.getColumns(screen);
-        let rows = Screen.getRows(screen);
-        for (column in 0 to columns - 1) {
-          for (row in 0 to rows - 1) {
-            let cell = Screen.getCell(~row, ~column, screen);
+        let rows = Screen.getTotalRows(screen);
 
-            let bgColor = getBgColor(cell);
-            if (bgColor != defaultBackgroundColor) {
-              Skia.Paint.setColor(backgroundPaint, bgColor);
-              CanvasContext.drawRectLtwh(
-                ~paint=backgroundPaint,
-                ~left=float(column) *. characterWidth,
-                ~top=float(row) *. lineHeight,
-                ~height=lineHeight,
-                ~width=characterWidth,
-                canvasContext,
-              );
-            };
-          };
-        };
+        let renderBackground = (row, yOffset) => {
+          for (column in 0 to columns - 1) {
+              let cell = Screen.getCell(~row, ~column, screen);
 
-        for (column in 0 to columns - 1) {
-          for (row in 0 to rows - 1) {
-            let cell = Screen.getCell(~row, ~column, screen);
-
-            let fgColor = getFgColor(cell);
-
-            Skia.Paint.setColor(textPaint, fgColor);
-            if (String.length(cell.chars) > 0) {
-              let char = cell.chars.[0];
-              let code = Char.code(char);
-              if (code != 0) {
-                CanvasContext.drawText(
-                  ~paint=textPaint,
-                  ~x=float(column) *. characterWidth,
-                  ~y=float(row) *. lineHeight +. characterHeight,
-                  ~text=String.make(1, cell.chars.[0]),
+              let bgColor = getBgColor(cell);
+              if (bgColor != defaultBackgroundColor) {
+                Skia.Paint.setColor(backgroundPaint, bgColor);
+                CanvasContext.drawRectLtwh(
+                  ~paint=backgroundPaint,
+                  ~left=float(column) *. characterWidth,
+                  ~top=yOffset,
+                  ~height=lineHeight,
+                  ~width=characterWidth,
                   canvasContext,
                 );
               };
-            };
           };
         };
+
+        let renderText = (row, yOffset) => {
+          for (column in 0 to columns - 1) {
+              let cell = Screen.getCell(~row, ~column, screen);
+
+              let fgColor = getFgColor(cell);
+
+              Skia.Paint.setColor(textPaint, fgColor);
+              if (String.length(cell.chars) > 0) {
+                let char = cell.chars.[0];
+                let code = Char.code(char);
+                if (code != 0) {
+                  CanvasContext.drawText(
+                    ~paint=textPaint,
+                    ~x=float(column) *. characterWidth,
+                    ~y=yOffset +. characterHeight,
+                    ~text=String.make(1, cell.chars.[0]),
+                    canvasContext,
+                  );
+                };
+              };
+          };
+        };
+        
+        let perLineRenderer = ImmediateList.render(
+          ~scrollY=0.,
+          ~rowHeight=lineHeight,
+          ~height=lineHeight *. float(rows),
+          ~count=rows,
+        );
+
+        perLineRenderer(~render=renderBackground, ());
+        perLineRenderer(~render=renderText, ());
 
         // If the cursor is visible, let's paint it now
         if (cursor.visible) {

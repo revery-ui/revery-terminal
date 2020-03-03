@@ -12,7 +12,6 @@ type effect =
 
 type t = {
   screen: ref(Screen.t),
-  scrollBack: ref(Scrollback.t),
   vterm: Vterm.t,
   cursor: ref(Cursor.t),
 };
@@ -29,8 +28,7 @@ let make =
     ) => {
   let cursor = ref(Cursor.initial);
   let vterm = Vterm.make(~rows, ~cols=columns);
-  let screen = ref(Screen.initial |> Screen.resize(~rows, ~columns));
-  let scrollBack = ref(Scrollback.make(~size=scrollBackSize));
+  let screen = ref(Screen.make(~scrollBackSize, ~rows, ~columns));
   Vterm.setUtf8(~utf8=true, vterm);
   Vterm.Screen.setAltScreen(~enabled=true, vterm);
 
@@ -59,16 +57,14 @@ let make =
   Vterm.Screen.setScrollbackPushCallback(
     ~onPushLine=
       cells => {
-        scrollBack := Scrollback.push(~cells, scrollBack^);
-        prerr_endline("Pushed!");
+        screen := Screen.pushScrollback(~cells, screen^);
       },
     vterm,
   );
   Vterm.Screen.setScrollbackPopCallback(
     ~onPopLine=
       cells => {
-        prerr_endline("Popped!");
-        scrollBack := Scrollback.pop(~cells, scrollBack^);
+        screen := Screen.pushScrollback(~cells, screen^);
       },
     vterm,
   );
@@ -91,11 +87,14 @@ let make =
   );
 
   Vterm.Screen.setTermPropCallback(
-    ~onSetTermProp=prop => {dispatch(TermPropChanged(prop))},
+    ~onSetTermProp=prop => {
+      prerr_endline ("Vterm: " ++ Vterm.TermProp.toString(prop));
+      dispatch(TermPropChanged(prop))
+    },
     vterm,
   );
 
-  {screen, vterm, cursor, scrollBack};
+  {screen, vterm, cursor};
 };
 
 let resize = (~rows, ~columns, {vterm, screen, _}) => {

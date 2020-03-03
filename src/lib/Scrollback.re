@@ -9,3 +9,5 @@ let push = (~cells as _, scrollBack) => scrollBack;
 let pop = (~cells as _, scrollBack) => scrollBack;
 
 let getAt = (~index as _, scrollBack) => [||];
+
+let getAvailableRows = _scrollback => 0;
