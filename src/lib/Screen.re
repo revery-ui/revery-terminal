@@ -59,7 +59,6 @@ let popScrollback  = (~cells, screen) => {
 
 let getCell = (~row, ~column, screen) => {
   let scrollbackRows = Scrollback.getAvailableRows(screen.scrollBack);
-  let screenRows = getScreenRows(screen);
 
   if (row >= scrollbackRows) {
     getScreenCell(~row=row - scrollbackRows, ~column, screen);
@@ -68,7 +67,7 @@ let getCell = (~row, ~column, screen) => {
     if (column >= Array.length(scrollbackRow)) {
       Vterm.ScreenCell.empty
     } else {
-      screen.cells[column];
+      scrollbackRow[column];
     }
   }
 };

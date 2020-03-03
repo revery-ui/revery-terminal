@@ -17,17 +17,12 @@ module Styles = {
       right(0),
     ];
 
-  let scrollBarWidth = 8;
-
-  let scrollBar =
+  let scrollBarContainer =
     Style.[
       position(`Absolute),
-      justifyContent(`Center),
-      alignItems(`Center),
       bottom(0),
       top(0),
       right(0),
-      width(scrollBarWidth),
     ];
 };
 
@@ -47,8 +42,19 @@ let%component make =
       (),
     ) => {
 
-  let%hook () = Hooks.effect(Always, () => None);
   let%hook (size, setSize) = Hooks.state({width: 0, height: 0});
+  let%hook (userScrollY, setUserScrollY) = Hooks.state(None);
+
+  let totalRows = Screen.getTotalRows(screen);
+  let screenRows = Screen.getScreenRows(screen);
+  let scrollBackRows = totalRows - screenRows;
+
+  let screenScrollY = float(scrollBackRows) *. font.lineHeight
+
+  let scrollY = switch (userScrollY) {
+  | Some(v) => v
+  | None => screenScrollY;
+  };
 
   let bg =
     switch (defaultBackground) {
@@ -90,9 +96,35 @@ let%component make =
     cell.reverse == 0 ? getColor(cell.bg) : getColor(cell.fg);
   };
 
+
+    let onScroll = y => {
+          print_endline (Printf.sprintf(
+            "SCROLL screenScrollY: %f y: %f"
+            , screenScrollY, y
+          ));
+
+        let y = y <= 0. ? 0. : y;
+        let maxScroll = float(scrollBackRows) *. font.lineHeight;
+        let y = y >= maxScroll ? maxScroll : y;
+
+        if (Float.abs(y -. screenScrollY) <= 10.0) {
+          print_endline ("SCROLLY: RESET");
+          setUserScrollY(_ => None);
+        } else {
+        print_endline ("SCROLLY: " ++ string_of_float(y));
+          setUserScrollY(_ => Some(y));
+        }
+    };
+
+    let onWheel = ({deltaY, _}: NodeEvents.mouseWheelEventParams) => {
+      let newScroll = scrollY -. (deltaY *. 25.0);
+      onScroll(newScroll);
+    };
+
   let element =
     <View
       style=Styles.container(bg)
+      onMouseWheel=onWheel
       onDimensionsChanged={({width, height,_}) => {
        setSize((_) => {
         width,
@@ -147,6 +179,7 @@ let%component make =
         };
 
         let renderText = (row, yOffset) => {
+          //print_endline ("RENDER TEXT: " ++ string_of_int(row));
           for (column in 0 to columns - 1) {
               let cell = Screen.getCell(~row, ~column, screen);
 
@@ -170,7 +203,7 @@ let%component make =
         };
         
         let perLineRenderer = ImmediateList.render(
-          ~scrollY=0.,
+          ~scrollY,
           ~rowHeight=lineHeight,
           ~height=lineHeight *. float(rows),
           ~count=rows,
@@ -185,7 +218,7 @@ let%component make =
           CanvasContext.drawRectLtwh(
             ~paint=textPaint,
             ~left=float(cursor.column) *. characterWidth,
-            ~top=float(cursor.row) *. lineHeight,
+            ~top=float(scrollBackRows + cursor.row) *. lineHeight -. scrollY,
             ~width=characterWidth,
             ~height=lineHeight,
             canvasContext,
@@ -193,16 +226,14 @@ let%component make =
         };
       }}
     />
-    <View style=Styles.scrollBar>
-    <Slider
-      vertical=true
-      sliderLength={size.height}
-      thumbLength={100}
-      trackThickness={Styles.scrollBarWidth}
-      thumbThickness={Styles.scrollBarWidth}
-      minimumValue=0.
-      maximumValue=1.
-      value=0.5
+
+    <View style=Styles.scrollBarContainer>
+    <TerminalScrollBarView
+      onScroll
+      height={size.height}
+      scrollY
+      screen
+      font
     />
     </View>
   </View>;

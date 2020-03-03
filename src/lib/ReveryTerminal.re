@@ -58,6 +58,7 @@ let make =
     ~onPushLine=
       cells => {
         screen := Screen.pushScrollback(~cells, screen^);
+        dispatch(ScreenUpdated(screen^));
       },
     vterm,
   );
@@ -65,6 +66,7 @@ let make =
     ~onPopLine=
       cells => {
         screen := Screen.pushScrollback(~cells, screen^);
+        dispatch(ScreenUpdated(screen^));
       },
     vterm,
   );

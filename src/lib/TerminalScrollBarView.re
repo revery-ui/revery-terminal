@@ -5,18 +5,6 @@ open Revery.UI;
 open Revery.UI.Components;
 
 module Styles = {
-  let container = (bg) =>
-    Style.[
-      backgroundColor(bg),
-      position(`Absolute),
-      justifyContent(`Center),
-      alignItems(`Center),
-      bottom(0),
-      top(0),
-      left(0),
-      right(0),
-    ];
-
   let scrollBarWidth = 8;
 
   let scrollBar =
@@ -31,182 +19,40 @@ module Styles = {
     ];
 };
 
-type terminalSize = {
-  width: int,
-  height: int,
-};
-
-let%component make =
+let make =
     (
-      ~defaultBackground=?,
-      ~defaultForeground=?,
-      ~theme=Theme.default,
+      ~onScroll,
+      ~height,
+      ~scrollY,
       ~screen: Screen.t,
-      ~cursor: Cursor.t,
       ~font: Font.t,
       (),
     ) => {
 
-  let%hook () = Hooks.effect(Always, () => None);
-  let%hook (size, setSize) = Hooks.state({width: 0, height: 0});
+  let totalRows = Screen.getTotalRows(screen);
+  let screenRows = Screen.getScreenRows(screen);
 
-  let bg =
-    switch (defaultBackground) {
-    | Some(v) => v
-    | None => theme(0)
-    };
+  let totalSize = float(totalRows) *. (font.lineHeight);
+  let screenSize = float(screenRows) *. (font.lineHeight);
 
-  let fg =
-    switch (defaultForeground) {
-    | Some(v) => v
-    | None => theme(15)
-    };
+  let pixelHeight = float_of_int(height);
 
+  let thumbLength = int_of_float((screenSize /. totalSize) *. pixelHeight);
 
-  let getColor = (color: Vterm.Color.t) => {
-    let outColor =
-      switch (color) {
-      | DefaultBackground => bg
-      | DefaultForeground => fg
-      | Rgb(r, g, b) =>
-        if (r == 0 && g == 0 && b == 0) {
-          bg;
-        } else if (r == 240 && g == 240 && b == 240) {
-          fg;
-        } else {
-          Revery.Color.rgb_int(r, g, b);
-        }
-      | Index(idx) => theme(idx)
-      };
+  let maximumValue = (totalSize -. screenSize);
 
-    Revery.Color.toSkia(outColor);
-  };
+  print_endline ("Slider height: " ++ string_of_int(height));
+  print_endline ("Thumb height: " ++ string_of_int(thumbLength));
 
-  let getFgColor = (cell: Vterm.ScreenCell.t) => {
-    cell.reverse == 0 ? getColor(cell.fg) : getColor(cell.bg);
-  };
-
-  let getBgColor = (cell: Vterm.ScreenCell.t) => {
-    cell.reverse == 0 ? getColor(cell.bg) : getColor(cell.fg);
-  };
-
-  let element =
-    <View
-      style=Styles.container(bg)
-      onDimensionsChanged={({width, height,_}) => {
-       setSize((_) => {
-        width,
-        height,
-       });
-      }}
-    >
-    <Canvas
-      style=Styles.container(bg)
-      render={canvasContext => {
-        let {
-          font,
-          lineHeight,
-          characterWidth,
-          characterHeight,
-          fontSize,
-          smoothing,
-        }: Font.t = font;
-        let defaultBackgroundColor = bg |> Color.toSkia;
-
-        let backgroundPaint = Skia.Paint.make();
-        Skia.Paint.setAntiAlias(backgroundPaint, false);
-
-        let textPaint = Skia.Paint.make();
-        let typeFace = Revery.Font.getSkiaTypeface(font);
-        Skia.Paint.setTypeface(textPaint, typeFace);
-        Skia.Paint.setTextSize(textPaint, fontSize);
-        Revery.Font.Smoothing.setPaint(smoothing, textPaint);
-
-        Skia.Paint.setLcdRenderText(textPaint, true);
-
-        let columns = Screen.getColumns(screen);
-        let rows = Screen.getTotalRows(screen);
-
-        let renderBackground = (row, yOffset) => {
-          for (column in 0 to columns - 1) {
-              let cell = Screen.getCell(~row, ~column, screen);
-
-              let bgColor = getBgColor(cell);
-              if (bgColor != defaultBackgroundColor) {
-                Skia.Paint.setColor(backgroundPaint, bgColor);
-                CanvasContext.drawRectLtwh(
-                  ~paint=backgroundPaint,
-                  ~left=float(column) *. characterWidth,
-                  ~top=yOffset,
-                  ~height=lineHeight,
-                  ~width=characterWidth,
-                  canvasContext,
-                );
-              };
-          };
-        };
-
-        let renderText = (row, yOffset) => {
-          for (column in 0 to columns - 1) {
-              let cell = Screen.getCell(~row, ~column, screen);
-
-              let fgColor = getFgColor(cell);
-
-              Skia.Paint.setColor(textPaint, fgColor);
-              if (String.length(cell.chars) > 0) {
-                let char = cell.chars.[0];
-                let code = Char.code(char);
-                if (code != 0) {
-                  CanvasContext.drawText(
-                    ~paint=textPaint,
-                    ~x=float(column) *. characterWidth,
-                    ~y=yOffset +. characterHeight,
-                    ~text=String.make(1, cell.chars.[0]),
-                    canvasContext,
-                  );
-                };
-              };
-          };
-        };
-        
-        let perLineRenderer = ImmediateList.render(
-          ~scrollY=0.,
-          ~rowHeight=lineHeight,
-          ~height=lineHeight *. float(rows),
-          ~count=rows,
-        );
-
-        perLineRenderer(~render=renderBackground, ());
-        perLineRenderer(~render=renderText, ());
-
-        // If the cursor is visible, let's paint it now
-        if (cursor.visible) {
-          Skia.Paint.setColor(textPaint, getColor(DefaultForeground));
-          CanvasContext.drawRectLtwh(
-            ~paint=textPaint,
-            ~left=float(cursor.column) *. characterWidth,
-            ~top=float(cursor.row) *. lineHeight,
-            ~width=characterWidth,
-            ~height=lineHeight,
-            canvasContext,
-          );
-        };
-      }}
-    />
-    <View style=Styles.scrollBar>
     <Slider
+      onValueChanged={(v) => onScroll(v)}
       vertical=true
-      sliderLength={size.height}
-      thumbLength={100}
+      sliderLength={height}
+      thumbLength
       trackThickness={Styles.scrollBarWidth}
       thumbThickness={Styles.scrollBarWidth}
       minimumValue=0.
-      maximumValue=1.
-      value=0.5
+      maximumValue
+      value={scrollY}
     />
-    </View>
-  </View>;
-
-
-  element;
 };
