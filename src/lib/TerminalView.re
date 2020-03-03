@@ -2,6 +2,7 @@ module Color = Revery.Color;
 module Colors = Revery.Colors;
 open Revery.Draw;
 open Revery.UI;
+open Revery.UI.Components;
 
 module Styles = {
   let container = (bg) =>
@@ -30,6 +31,11 @@ module Styles = {
     ];
 };
 
+type terminalSize = {
+  width: int,
+  height: int,
+};
+
 let%component make =
     (
       ~defaultBackground=?,
@@ -42,6 +48,7 @@ let%component make =
     ) => {
 
   let%hook () = Hooks.effect(Always, () => None);
+  let%hook (size, setSize) = Hooks.state({width: 0, height: 0});
 
   let bg =
     switch (defaultBackground) {
@@ -86,8 +93,11 @@ let%component make =
   let element =
     <View
       style=Styles.container(bg)
-      onDimensionsChanged={(_) => {
-       print_endline ("Dimensions changed");
+      onDimensionsChanged={({width, height,_}) => {
+       setSize((_) => {
+        width,
+        height,
+       });
       }}
     >
     <Canvas
@@ -183,6 +193,18 @@ let%component make =
         };
       }}
     />
+    <View style=Styles.scrollBar>
+    <Slider
+      vertical=true
+      sliderLength={size.height}
+      thumbLength={100}
+      trackThickness={Styles.scrollBarWidth}
+      thumbThickness={Styles.scrollBarWidth}
+      minimumValue=0.
+      maximumValue=1.
+      value=0.5
+    />
+    </View>
   </View>;
 
 
