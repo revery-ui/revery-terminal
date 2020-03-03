@@ -3,7 +3,34 @@ module Colors = Revery.Colors;
 open Revery.Draw;
 open Revery.UI;
 
-let make =
+module Styles = {
+  let container = (bg) =>
+    Style.[
+      backgroundColor(bg),
+      position(`Absolute),
+      justifyContent(`Center),
+      alignItems(`Center),
+      bottom(0),
+      top(0),
+      left(0),
+      right(0),
+    ];
+
+  let scrollBarWidth = 8;
+
+  let scrollBar =
+    Style.[
+      position(`Absolute),
+      justifyContent(`Center),
+      alignItems(`Center),
+      bottom(0),
+      top(0),
+      right(0),
+      width(scrollBarWidth),
+    ];
+};
+
+let%component make =
     (
       ~defaultBackground=?,
       ~defaultForeground=?,
@@ -13,6 +40,9 @@ let make =
       ~font: Font.t,
       (),
     ) => {
+
+  let%hook () = Hooks.effect(Always, () => None);
+
   let bg =
     switch (defaultBackground) {
     | Some(v) => v
@@ -25,17 +55,6 @@ let make =
     | None => theme(15)
     };
 
-  let containerStyle =
-    Style.[
-      backgroundColor(bg),
-      position(`Absolute),
-      justifyContent(`Center),
-      alignItems(`Center),
-      bottom(0),
-      top(0),
-      left(0),
-      right(0),
-    ];
 
   let getColor = (color: Vterm.Color.t) => {
     let outColor =
@@ -65,8 +84,14 @@ let make =
   };
 
   let element =
+    <View
+      style=Styles.container(bg)
+      onDimensionsChanged={(_) => {
+       print_endline ("Dimensions changed");
+      }}
+    >
     <Canvas
-      style=containerStyle
+      style=Styles.container(bg)
       render={canvasContext => {
         let {
           font,
@@ -157,7 +182,9 @@ let make =
           );
         };
       }}
-    />;
+    />
+  </View>;
+
 
   element;
 };
