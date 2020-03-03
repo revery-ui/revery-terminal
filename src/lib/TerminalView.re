@@ -5,7 +5,7 @@ open Revery.UI;
 open Revery.UI.Components;
 
 module Styles = {
-  let container = (bg) =>
+  let container = bg =>
     Style.[
       backgroundColor(bg),
       position(`Absolute),
@@ -18,12 +18,7 @@ module Styles = {
     ];
 
   let scrollBarContainer =
-    Style.[
-      position(`Absolute),
-      bottom(0),
-      top(0),
-      right(0),
-    ];
+    Style.[position(`Absolute), bottom(0), top(0), right(0)];
 };
 
 type terminalSize = {
@@ -32,16 +27,15 @@ type terminalSize = {
 };
 
 let%component make =
-    (
-      ~defaultBackground=?,
-      ~defaultForeground=?,
-      ~theme=Theme.default,
-      ~screen: Screen.t,
-      ~cursor: Cursor.t,
-      ~font: Font.t,
-      (),
-    ) => {
-
+              (
+                ~defaultBackground=?,
+                ~defaultForeground=?,
+                ~theme=Theme.default,
+                ~screen: Screen.t,
+                ~cursor: Cursor.t,
+                ~font: Font.t,
+                (),
+              ) => {
   let%hook (size, setSize) = Hooks.state({width: 0, height: 0});
   let%hook (userScrollY, setUserScrollY) = Hooks.state(None);
 
@@ -49,12 +43,13 @@ let%component make =
   let screenRows = Screen.getScreenRows(screen);
   let scrollBackRows = totalRows - screenRows;
 
-  let screenScrollY = float(scrollBackRows) *. font.lineHeight
+  let screenScrollY = float(scrollBackRows) *. font.lineHeight;
 
-  let scrollY = switch (userScrollY) {
-  | Some(v) => v
-  | None => screenScrollY;
-  };
+  let scrollY =
+    switch (userScrollY) {
+    | Some(v) => v
+    | None => screenScrollY
+    };
 
   let bg =
     switch (defaultBackground) {
@@ -67,7 +62,6 @@ let%component make =
     | Some(v) => v
     | None => theme(15)
     };
-
 
   let getColor = (color: Vterm.Color.t) => {
     let outColor =
@@ -96,148 +90,133 @@ let%component make =
     cell.reverse == 0 ? getColor(cell.bg) : getColor(cell.fg);
   };
 
+  let onScroll = y => {
+    let y = y <= 0. ? 0. : y;
+    let maxScroll = float(scrollBackRows) *. font.lineHeight;
+    let y = y >= maxScroll ? maxScroll : y;
 
-    let onScroll = y => {
-          print_endline (Printf.sprintf(
-            "SCROLL screenScrollY: %f y: %f"
-            , screenScrollY, y
-          ));
-
-        let y = y <= 0. ? 0. : y;
-        let maxScroll = float(scrollBackRows) *. font.lineHeight;
-        let y = y >= maxScroll ? maxScroll : y;
-
-        if (Float.abs(y -. screenScrollY) <= 10.0) {
-          print_endline ("SCROLLY: RESET");
-          setUserScrollY(_ => None);
-        } else {
-        print_endline ("SCROLLY: " ++ string_of_float(y));
-          setUserScrollY(_ => Some(y));
-        }
+    if (Float.abs(y -. screenScrollY) <= 10.0) {
+      setUserScrollY(_ => None);
+    } else {
+      setUserScrollY(_ => Some(y));
     };
+  };
 
-    let onWheel = ({deltaY, _}: NodeEvents.mouseWheelEventParams) => {
-      let newScroll = scrollY -. (deltaY *. 25.0);
-      onScroll(newScroll);
-    };
+  let onWheel = ({deltaY, _}: NodeEvents.mouseWheelEventParams) => {
+    let newScroll = scrollY -. deltaY *. 25.0;
+    onScroll(newScroll);
+  };
 
   let element =
     <View
-      style=Styles.container(bg)
+      style={Styles.container(bg)}
       onMouseWheel=onWheel
-      onDimensionsChanged={({width, height,_}) => {
-       setSize((_) => {
-        width,
-        height,
-       });
-      }}
-    >
-    <Canvas
-      style=Styles.container(bg)
-      render={canvasContext => {
-        let {
-          font,
-          lineHeight,
-          characterWidth,
-          characterHeight,
-          fontSize,
-          smoothing,
-        }: Font.t = font;
-        let defaultBackgroundColor = bg |> Color.toSkia;
+      onDimensionsChanged={({width, height, _}) => {
+        setSize(_ => {width, height})
+      }}>
+      <Canvas
+        style={Styles.container(bg)}
+        render={canvasContext => {
+          let {
+            font,
+            lineHeight,
+            characterWidth,
+            characterHeight,
+            fontSize,
+            smoothing,
+          }: Font.t = font;
+          let defaultBackgroundColor = bg |> Color.toSkia;
 
-        let backgroundPaint = Skia.Paint.make();
-        Skia.Paint.setAntiAlias(backgroundPaint, false);
+          let backgroundPaint = Skia.Paint.make();
+          Skia.Paint.setAntiAlias(backgroundPaint, false);
 
-        let textPaint = Skia.Paint.make();
-        let typeFace = Revery.Font.getSkiaTypeface(font);
-        Skia.Paint.setTypeface(textPaint, typeFace);
-        Skia.Paint.setTextSize(textPaint, fontSize);
-        Revery.Font.Smoothing.setPaint(smoothing, textPaint);
+          let textPaint = Skia.Paint.make();
+          let typeFace = Revery.Font.getSkiaTypeface(font);
+          Skia.Paint.setTypeface(textPaint, typeFace);
+          Skia.Paint.setTextSize(textPaint, fontSize);
+          Revery.Font.Smoothing.setPaint(smoothing, textPaint);
 
-        Skia.Paint.setLcdRenderText(textPaint, true);
+          Skia.Paint.setLcdRenderText(textPaint, true);
 
-        let columns = Screen.getColumns(screen);
-        let rows = Screen.getTotalRows(screen);
+          let columns = Screen.getColumns(screen);
+          let rows = Screen.getTotalRows(screen);
 
-        let renderBackground = (row, yOffset) => {
-          for (column in 0 to columns - 1) {
-              let cell = Screen.getCell(~row, ~column, screen);
+          let renderBackground = (row, yOffset) =>
+            {for (column in 0 to columns - 1) {
+               let cell = Screen.getCell(~row, ~column, screen);
 
-              let bgColor = getBgColor(cell);
-              if (bgColor != defaultBackgroundColor) {
-                Skia.Paint.setColor(backgroundPaint, bgColor);
-                CanvasContext.drawRectLtwh(
-                  ~paint=backgroundPaint,
-                  ~left=float(column) *. characterWidth,
-                  ~top=yOffset,
-                  ~height=lineHeight,
-                  ~width=characterWidth,
-                  canvasContext,
-                );
-              };
+               let bgColor = getBgColor(cell);
+               if (bgColor != defaultBackgroundColor) {
+                 Skia.Paint.setColor(backgroundPaint, bgColor);
+                 CanvasContext.drawRectLtwh(
+                   ~paint=backgroundPaint,
+                   ~left=float(column) *. characterWidth,
+                   ~top=yOffset,
+                   ~height=lineHeight,
+                   ~width=characterWidth,
+                   canvasContext,
+                 );
+               };
+             }};
+
+          let renderText = (row, yOffset) =>
+            {for (column in 0 to columns - 1) {
+               let cell = Screen.getCell(~row, ~column, screen);
+
+               let fgColor = getFgColor(cell);
+
+               Skia.Paint.setColor(textPaint, fgColor);
+               if (String.length(cell.chars) > 0) {
+                 let char = cell.chars.[0];
+                 let code = Char.code(char);
+                 if (code != 0) {
+                   CanvasContext.drawText(
+                     ~paint=textPaint,
+                     ~x=float(column) *. characterWidth,
+                     ~y=yOffset +. characterHeight,
+                     ~text=String.make(1, cell.chars.[0]),
+                     canvasContext,
+                   );
+                 };
+               };
+             }};
+
+          let perLineRenderer =
+            ImmediateList.render(
+              ~scrollY,
+              ~rowHeight=lineHeight,
+              ~height=lineHeight *. float(rows),
+              ~count=rows,
+            );
+
+          perLineRenderer(~render=renderBackground, ());
+          perLineRenderer(~render=renderText, ());
+
+          // If the cursor is visible, let's paint it now
+          if (cursor.visible) {
+            Skia.Paint.setColor(textPaint, getColor(DefaultForeground));
+            CanvasContext.drawRectLtwh(
+              ~paint=textPaint,
+              ~left=float(cursor.column) *. characterWidth,
+              ~top=
+                float(scrollBackRows + cursor.row) *. lineHeight -. scrollY,
+              ~width=characterWidth,
+              ~height=lineHeight,
+              canvasContext,
+            );
           };
-        };
-
-        let renderText = (row, yOffset) => {
-          //print_endline ("RENDER TEXT: " ++ string_of_int(row));
-          for (column in 0 to columns - 1) {
-              let cell = Screen.getCell(~row, ~column, screen);
-
-              let fgColor = getFgColor(cell);
-
-              Skia.Paint.setColor(textPaint, fgColor);
-              if (String.length(cell.chars) > 0) {
-                let char = cell.chars.[0];
-                let code = Char.code(char);
-                if (code != 0) {
-                  CanvasContext.drawText(
-                    ~paint=textPaint,
-                    ~x=float(column) *. characterWidth,
-                    ~y=yOffset +. characterHeight,
-                    ~text=String.make(1, cell.chars.[0]),
-                    canvasContext,
-                  );
-                };
-              };
-          };
-        };
-        
-        let perLineRenderer = ImmediateList.render(
-          ~scrollY,
-          ~rowHeight=lineHeight,
-          ~height=lineHeight *. float(rows),
-          ~count=rows,
-        );
-
-        perLineRenderer(~render=renderBackground, ());
-        perLineRenderer(~render=renderText, ());
-
-        // If the cursor is visible, let's paint it now
-        if (cursor.visible) {
-          Skia.Paint.setColor(textPaint, getColor(DefaultForeground));
-          CanvasContext.drawRectLtwh(
-            ~paint=textPaint,
-            ~left=float(cursor.column) *. characterWidth,
-            ~top=float(scrollBackRows + cursor.row) *. lineHeight -. scrollY,
-            ~width=characterWidth,
-            ~height=lineHeight,
-            canvasContext,
-          );
-        };
-      }}
-    />
-
-    <View style=Styles.scrollBarContainer>
-    <TerminalScrollBarView
-      onScroll
-      height={size.height}
-      scrollY
-      screen
-      font
-    />
-    </View>
-  </View>;
-
+        }}
+      />
+      <View style=Styles.scrollBarContainer>
+        <TerminalScrollBarView
+          onScroll
+          height={size.height}
+          scrollY
+          screen
+          font
+        />
+      </View>
+    </View>;
 
   element;
 };

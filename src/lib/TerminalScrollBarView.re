@@ -20,39 +20,31 @@ module Styles = {
 };
 
 let make =
-    (
-      ~onScroll,
-      ~height,
-      ~scrollY,
-      ~screen: Screen.t,
-      ~font: Font.t,
-      (),
-    ) => {
-
+    (~onScroll, ~height, ~scrollY, ~screen: Screen.t, ~font: Font.t, ()) => {
   let totalRows = Screen.getTotalRows(screen);
   let screenRows = Screen.getScreenRows(screen);
 
-  let totalSize = float(totalRows) *. (font.lineHeight);
-  let screenSize = float(screenRows) *. (font.lineHeight);
+  let totalSize = float(totalRows) *. font.lineHeight;
+  let screenSize = float(screenRows) *. font.lineHeight;
 
   let pixelHeight = float_of_int(height);
 
-  let thumbLength = int_of_float((screenSize /. totalSize) *. pixelHeight);
+  let thumbLength = int_of_float(screenSize /. totalSize *. pixelHeight);
 
-  let maximumValue = (totalSize -. screenSize);
+  let maximumValue = totalSize -. screenSize;
 
-  print_endline ("Slider height: " ++ string_of_int(height));
-  print_endline ("Thumb height: " ++ string_of_int(thumbLength));
+  print_endline("Slider height: " ++ string_of_int(height));
+  print_endline("Thumb height: " ++ string_of_int(thumbLength));
 
-    <Slider
-      onValueChanged={(v) => onScroll(v)}
-      vertical=true
-      sliderLength={height}
-      thumbLength
-      trackThickness={Styles.scrollBarWidth}
-      thumbThickness={Styles.scrollBarWidth}
-      minimumValue=0.
-      maximumValue
-      value={scrollY}
-    />
+  <Slider
+    onValueChanged={v => onScroll(v)}
+    vertical=true
+    sliderLength=height
+    thumbLength
+    trackThickness=Styles.scrollBarWidth
+    thumbThickness=Styles.scrollBarWidth
+    minimumValue=0.
+    maximumValue
+    value=scrollY
+  />;
 };

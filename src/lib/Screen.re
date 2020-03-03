@@ -39,22 +39,23 @@ let damaged = (model, damages: list(DamageInfo.t)) => {
 };
 
 let getScreenRows = model => model.rows;
-let getTotalRows = model => model.rows + Scrollback.getAvailableRows(model.scrollBack);
+let getTotalRows = model =>
+  model.rows + Scrollback.getAvailableRows(model.scrollBack);
 
 let pushScrollback = (~cells, screen) => {
   {
     ...screen,
     damageCounter: screen.damageCounter + 1,
     scrollBack: Scrollback.push(~cells, screen.scrollBack),
-  }
+  };
 };
 
-let popScrollback  = (~cells, screen) => {
+let popScrollback = (~cells, screen) => {
   {
     ...screen,
     damageCounter: screen.damageCounter + 1,
     scrollBack: Scrollback.pop(~cells, screen.scrollBack),
-  }
+  };
 };
 
 let getCell = (~row, ~column, screen) => {
@@ -65,11 +66,11 @@ let getCell = (~row, ~column, screen) => {
   } else {
     let scrollbackRow = Scrollback.getAt(~index=row, screen.scrollBack);
     if (column >= Array.length(scrollbackRow)) {
-      Vterm.ScreenCell.empty
+      Vterm.ScreenCell.empty;
     } else {
       scrollbackRow[column];
-    }
-  }
+    };
+  };
 };
 let getColumns = model => model.columns;
 
@@ -97,4 +98,4 @@ let initial = {
   columns: 0,
   cells: Array.make(0, Vterm.ScreenCell.empty),
   scrollBack: Scrollback.make(~size=0),
-}
+};

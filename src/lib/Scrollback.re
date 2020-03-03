@@ -1,5 +1,8 @@
 type t = {
   size: int,
+  // The 'scrollback' is represented as a circular array,
+  // where 'startPosition' is the position of index 0,
+  // and 'nextInsertPosition' is the location of the next insert.
   rows: array(array(Vterm.ScreenCell.t)),
   // The current place to insert
   nextInsertPosition: int,
@@ -8,22 +11,27 @@ type t = {
 };
 
 let make = (~size) => {
-  size, 
+  size,
   rows: Array.make(size, [||]),
   nextInsertPosition: 0,
   startPosition: 0,
 };
 
 let push = (~cells, scrollBack) => {
-  let { size, nextInsertPosition, _ } = scrollBack;
+  let {size, nextInsertPosition, _} = scrollBack;
   let idx = nextInsertPosition mod size;
 
-  let startPosition = nextInsertPosition >= size ? nextInsertPosition - 1 : 
-  scrollBack.startPosition;
+  let startPosition =
+    nextInsertPosition >= size
+      ? nextInsertPosition - 1 : scrollBack.startPosition;
 
-  let rows = Array.copy(scrollBack.rows);
+  // Slower, immutable version:
+  //let rows = Array.copy(scrollBack.rows);
 
-  rows[idx] = Array.copy(cells);
+  // Faster, unsafe version:
+  let rows = scrollBack.rows;
+
+  rows[idx] = cells;
 
   {
     ...scrollBack,
@@ -31,15 +39,15 @@ let push = (~cells, scrollBack) => {
     nextInsertPosition: nextInsertPosition + 1,
     startPosition,
   };
-}
+};
 let pop = (~cells as _, scrollBack) => scrollBack;
 
 let getAt = (~index, scrollBack) => {
   let idx = (index - scrollBack.startPosition) mod scrollBack.size;
-  scrollBack.rows[idx]
+  scrollBack.rows[idx];
 };
 
-let getAvailableRows = (scrollBack) => {
-  scrollBack.nextInsertPosition > scrollBack.size ?
-  scrollBack.size : scrollBack.nextInsertPosition;
-}
+let getAvailableRows = scrollBack => {
+  scrollBack.nextInsertPosition > scrollBack.size
+    ? scrollBack.size : scrollBack.nextInsertPosition;
+};

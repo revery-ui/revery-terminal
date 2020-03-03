@@ -28,7 +28,7 @@ module Font: {
 
 module Screen: {
   type t;
-  
+
   let initial: t;
 
   let getCell: (~row: int, ~column: int, t) => Vterm.ScreenCell.t;
