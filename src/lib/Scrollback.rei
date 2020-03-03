@@ -1,8 +1,8 @@
 type t;
 
-let push: (~cells: array(Vterm.ScreenCell.t), t) => t;
+let push: (~cells: array(Vterm.ScreenCell.t), t) => unit;
 
-let pop: (~cells: array(Vterm.ScreenCell.t), t) => t;
+let pop: (~cells: array(Vterm.ScreenCell.t), t) => unit;
 
 let make: (~size: int) => t;
 

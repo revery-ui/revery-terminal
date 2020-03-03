@@ -14,7 +14,7 @@ type t = {
   scrollBack: Scrollback.t,
 };
 
-let getScreenCell = (~row, ~column, screen) => {
+let getVisibleCell = (~row, ~column, screen) => {
   let idx = row * screen.columns + column;
   if (idx >= Array.length(screen.cells)) {
     Vterm.ScreenCell.empty;
@@ -43,18 +43,20 @@ let getTotalRows = model =>
   model.rows + Scrollback.getAvailableRows(model.scrollBack);
 
 let pushScrollback = (~cells, screen) => {
+  Scrollback.push(~cells, screen.scrollBack);
+
   {
     ...screen,
     damageCounter: screen.damageCounter + 1,
-    scrollBack: Scrollback.push(~cells, screen.scrollBack),
   };
 };
 
 let popScrollback = (~cells, screen) => {
+  Scrollback.pop(~cells, screen.scrollBack);
+
   {
     ...screen,
     damageCounter: screen.damageCounter + 1,
-    scrollBack: Scrollback.pop(~cells, screen.scrollBack),
   };
 };
 
@@ -62,7 +64,7 @@ let getCell = (~row, ~column, screen) => {
   let scrollbackRows = Scrollback.getAvailableRows(screen.scrollBack);
 
   if (row >= scrollbackRows) {
-    getScreenCell(~row=row - scrollbackRows, ~column, screen);
+    getVisibleCell(~row=row - scrollbackRows, ~column, screen);
   } else {
     let scrollbackRow = Scrollback.getAt(~index=row, screen.scrollBack);
     if (column >= Array.length(scrollbackRow)) {

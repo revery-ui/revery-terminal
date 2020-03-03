@@ -5,9 +5,9 @@ type t = {
   // and 'nextInsertPosition' is the location of the next insert.
   rows: array(array(Vterm.ScreenCell.t)),
   // The current place to insert
-  nextInsertPosition: int,
+  mutable nextInsertPosition: int,
   // 'Start' position
-  startPosition: int,
+  mutable startPosition: int,
 };
 
 let make = (~size) => {
@@ -33,14 +33,11 @@ let push = (~cells, scrollBack) => {
 
   rows[idx] = cells;
 
-  {
-    ...scrollBack,
-    rows,
-    nextInsertPosition: nextInsertPosition + 1,
-    startPosition,
-  };
+  scrollback.nextInsertPosition = nextInsertPosition + 1;
+  scrollback.startPosition = startPosition;
 };
-let pop = (~cells as _, scrollBack) => scrollBack;
+
+let pop = (~cells as _, scrollBack) => ();
 
 let getAt = (~index, scrollBack) => {
   let idx = (index - scrollBack.startPosition) mod scrollBack.size;

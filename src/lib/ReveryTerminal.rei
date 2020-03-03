@@ -31,13 +31,15 @@ module Screen: {
 
   let initial: t;
 
+  // Get a cell, where [row] is 0-indexed, starting at the earliest
+  // row in the scrollback buffer.
   let getCell: (~row: int, ~column: int, t) => Vterm.ScreenCell.t;
-  let getScreenCell: (~row: int, ~column: int, t) => Vterm.ScreenCell.t;
 
   // Get total rows, including scrollback
   let getTotalRows: t => int;
 
-  let getScreenRows: t => int;
+  let getVisibleRows: t => int;
+
   let getColumns: t => int;
 };
 
