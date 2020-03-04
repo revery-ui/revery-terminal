@@ -11,9 +11,10 @@ type t = {
   rows: int,
   columns: int,
   cells: array(Vterm.ScreenCell.t),
+  scrollBack: RingBuffer.t(array(Vterm.ScreenCell.t)),
 };
 
-let getCell = (~row, ~column, screen) => {
+let getVisibleCell = (~row, ~column, screen) => {
   let idx = row * screen.columns + column;
   if (idx >= Array.length(screen.cells)) {
     Vterm.ScreenCell.empty;
@@ -37,11 +38,43 @@ let damaged = (model, damages: list(DamageInfo.t)) => {
   {...model, damageCounter: model.damageCounter + 1};
 };
 
-let getRows = model => model.rows;
+let getVisibleRows = model => model.rows;
+let getTotalRows = model => model.rows + RingBuffer.size(model.scrollBack);
+
+let pushScrollback = (~cells, screen) => {
+  RingBuffer.push(cells, screen.scrollBack);
+
+  {...screen, damageCounter: screen.damageCounter + 1};
+};
+
+let popScrollback = (~cells as _, screen) => {
+  {
+    // TODO
+
+    ...screen,
+    damageCounter: screen.damageCounter + 1,
+  };
+};
+
+let getCell = (~row, ~column, screen) => {
+  let scrollbackRows = RingBuffer.size(screen.scrollBack);
+
+  if (row >= scrollbackRows) {
+    getVisibleCell(~row=row - scrollbackRows, ~column, screen);
+  } else {
+    let scrollbackRow = RingBuffer.getAt(row, screen.scrollBack);
+    if (column >= Array.length(scrollbackRow)) {
+      Vterm.ScreenCell.empty;
+    } else {
+      scrollbackRow[column];
+    };
+  };
+};
 let getColumns = model => model.columns;
 
 let resize = (~rows, ~columns, model) => {
   {
+    ...model,
     damageCounter: model.damageCounter + 1,
     rows,
     columns,
@@ -49,9 +82,18 @@ let resize = (~rows, ~columns, model) => {
   };
 };
 
+let make = (~scrollBackSize, ~rows, ~columns) => {
+  damageCounter: 0,
+  rows: 0,
+  columns: 0,
+  cells: Array.make(rows * columns, Vterm.ScreenCell.empty),
+  scrollBack: RingBuffer.make(~capacity=scrollBackSize, [||]),
+};
+
 let initial = {
   damageCounter: 0,
   rows: 0,
   columns: 0,
   cells: Array.make(0, Vterm.ScreenCell.empty),
+  scrollBack: RingBuffer.make(~capacity=0, [||]),
 };
