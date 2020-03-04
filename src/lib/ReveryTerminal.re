@@ -126,6 +126,7 @@ let render =
       ~defaultBackground=?,
       ~scrollBarBackground=?,
       ~scrollBarThumb=?,
+      ~scrollBarThickness=?,
       ~theme=Theme.default,
       ~font,
       ~cursor,
@@ -136,6 +137,7 @@ let render =
     ?defaultBackground
     ?scrollBarBackground
     ?scrollBarThumb
+    ?scrollBarThickness
     theme
     screen
     cursor

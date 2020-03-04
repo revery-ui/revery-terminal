@@ -47,7 +47,7 @@ let pushScrollback = (~cells, screen) => {
   {...screen, damageCounter: screen.damageCounter + 1};
 };
 
-let popScrollback = (~cells, screen) => {
+let popScrollback = (~cells as _, screen) => {
   {
     // TODO
 

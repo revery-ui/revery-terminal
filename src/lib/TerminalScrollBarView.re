@@ -1,6 +1,5 @@
 module Color = Revery.Color;
 module Colors = Revery.Colors;
-open Revery.Draw;
 open Revery.UI;
 open Revery.UI.Components;
 

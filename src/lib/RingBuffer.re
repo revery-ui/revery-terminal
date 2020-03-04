@@ -26,7 +26,7 @@ let push = (item, ringBuffer) => {
 };
 
 let size = ringBuffer => {
-  let {backingArray, nextInsertPosition, capacity, _} = ringBuffer;
+  let {nextInsertPosition, capacity, _} = ringBuffer;
   nextInsertPosition >= capacity ? capacity : nextInsertPosition;
 };
 

@@ -79,6 +79,7 @@ let render:
     ~defaultBackground: Revery.Color.t=?,
     ~scrollBarBackground: Revery.Color.t=?,
     ~scrollBarThumb: Revery.Color.t=?,
+    ~scrollBarThickness: int=?,
     ~theme: Theme.t=?,
     ~font: Font.t,
     ~cursor: Cursor.t,

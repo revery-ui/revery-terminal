@@ -2,7 +2,6 @@ module Color = Revery.Color;
 module Colors = Revery.Colors;
 open Revery.Draw;
 open Revery.UI;
-open Revery.UI.Components;
 
 module Styles = {
   let container = bg =>
@@ -137,7 +136,7 @@ let%component make =
           let typeFace = Revery.Font.getSkiaTypeface(font);
           Skia.Paint.setTypeface(textPaint, typeFace);
           Skia.Paint.setTextSize(textPaint, fontSize);
-          Revery.Font.Smoothing.setPaint(smoothing, textPaint);
+          Revery.Font.Smoothing.setPaint(~smoothing, textPaint);
 
           Skia.Paint.setLcdRenderText(textPaint, true);
 

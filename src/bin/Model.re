@@ -1,4 +1,3 @@
-open Terminal;
 open ReveryTerminal;
 
 // This type [t] is the heart of our app - the entire state
@@ -69,7 +68,7 @@ let checkResizeTerminalEffect = model => {
   };
 };
 
-let termPropEffect = prop => {
+let termPropEffect = _prop => {
   Isolinear.Effect.none;
 };
 
