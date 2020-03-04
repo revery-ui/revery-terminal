@@ -56,9 +56,9 @@ let make =
     vertical=true
     sliderLength=height
     thumbLength
-    /*maximumTrackColor=trackColor
-      minimumTrackColor=trackColor*/
-    /*thumbColor*/
+    maximumTrackColor=trackColor
+    minimumTrackColor=trackColor
+    thumbColor
     trackThickness=width
     thumbThickness=width
     minimumValue=0.

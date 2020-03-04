@@ -1,38 +1,37 @@
 type t('a) = {
-	capacity: int,
-	backingArray: array('a),
-	mutable startPosition: int,
-	mutable nextInsertPosition: int,
+  capacity: int,
+  backingArray: array('a),
+  mutable startPosition: int,
+  mutable nextInsertPosition: int,
 };
 
 let make = (~capacity, default) => {
-	capacity,
-	backingArray: Array.make(capacity, default),
-	startPosition: 0,
-	nextInsertPosition: 0,
+  capacity,
+  backingArray: Array.make(capacity, default),
+  startPosition: 0,
+  nextInsertPosition: 0,
 };
 
 let push = (item, ringBuffer) => {
-	let { backingArray, nextInsertPosition, startPosition, capacity } = ringBuffer;
+  let {backingArray, nextInsertPosition, startPosition, capacity} = ringBuffer;
   let idx = nextInsertPosition mod capacity;
 
   let startPosition =
-    nextInsertPosition >= capacity
-      ? nextInsertPosition - 1 : startPosition;
+    nextInsertPosition >= capacity ? nextInsertPosition - 1 : startPosition;
 
   backingArray[idx] = item;
 
   ringBuffer.nextInsertPosition = nextInsertPosition + 1;
   ringBuffer.startPosition = startPosition;
-}
+};
 
-let size = (ringBuffer) => {
-	let { backingArray, nextInsertPosition, capacity,  _} = ringBuffer;
-	nextInsertPosition >= capacity ? capacity : nextInsertPosition;
+let size = ringBuffer => {
+  let {backingArray, nextInsertPosition, capacity, _} = ringBuffer;
+  nextInsertPosition >= capacity ? capacity : nextInsertPosition;
 };
 
 let getAt = (index, ringBuffer) => {
-  let { backingArray, startPosition, capacity, _ } = ringBuffer;
-  let idx = (index - startPosition) mod capacity
+  let {backingArray, startPosition, capacity, _} = ringBuffer;
+  let idx = (index - startPosition) mod capacity;
   backingArray[idx];
 };
