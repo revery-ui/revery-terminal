@@ -54,8 +54,8 @@ let%component make =
     | None => screenScrollY
     };
 
-  print_endline (
-    Printf.sprintf("screenScrollY: %f scrollY: %f", screenScrollY, scrollY)
+  print_endline(
+    Printf.sprintf("screenScrollY: %f scrollY: %f", screenScrollY, scrollY),
   );
 
   let bg =
@@ -218,9 +218,9 @@ let%component make =
         <TerminalScrollBarView
           onScroll
           height={size.height}
-          width={scrollBarThickness}
-          trackColor={scrollBarBackground}
-          thumbColor={scrollBarThumb}
+          width=scrollBarThickness
+          trackColor=scrollBarBackground
+          thumbColor=scrollBarThumb
           scrollY
           screen
           font

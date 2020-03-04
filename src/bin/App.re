@@ -18,6 +18,8 @@ let init = app => {
   // Create a primary window for our app
   let window = App.createWindow(app, "Revery Terminal");
 
+  Window.setZoom(window, 2.);
+
   let emptyElement = <View />;
 
   // Connect with the isolinear store -
@@ -104,7 +106,7 @@ let init = app => {
   let _: unit => unit =
     Revery.Window.onSizeChanged(window, ({width, height}) => {
       Store.dispatch(
-        WindowSizeChanged({pixelWidth: width, pixelHeight: height}),
+        WindowSizeChanged({pixelWidth: width / 2, pixelHeight: height / 2}),
       )
     });
 

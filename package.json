@@ -33,11 +33,10 @@
     "@glennsl/timber": "1.0.0"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#fd90042",
+    "revery": "link:../revery",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
-    "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755",
-    "reason-harfbuzz": "revery-ui/reason-harfbuzz#0848520"
+    "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755"
   },
   "scripts": {
    "format": "esy dune build @fmt --auto-promote",

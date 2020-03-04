@@ -45,19 +45,13 @@ let getTotalRows = model =>
 let pushScrollback = (~cells, screen) => {
   Scrollback.push(~cells, screen.scrollBack);
 
-  {
-    ...screen,
-    damageCounter: screen.damageCounter + 1,
-  };
+  {...screen, damageCounter: screen.damageCounter + 1};
 };
 
 let popScrollback = (~cells, screen) => {
   Scrollback.pop(~cells, screen.scrollBack);
 
-  {
-    ...screen,
-    damageCounter: screen.damageCounter + 1,
-  };
+  {...screen, damageCounter: screen.damageCounter + 1};
 };
 
 let getCell = (~row, ~column, screen) => {
