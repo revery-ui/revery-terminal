@@ -54,10 +54,6 @@ let%component make =
     | None => screenScrollY
     };
 
-  print_endline(
-    Printf.sprintf("screenScrollY: %f scrollY: %f", screenScrollY, scrollY),
-  );
-
   let bg =
     switch (defaultBackground) {
     | Some(v) => v

@@ -90,11 +90,7 @@ let make =
   );
 
   Vterm.Screen.setTermPropCallback(
-    ~onSetTermProp=
-      prop => {
-        prerr_endline("Vterm: " ++ Vterm.TermProp.toString(prop));
-        dispatch(TermPropChanged(prop));
-      },
+    ~onSetTermProp=prop => {dispatch(TermPropChanged(prop))},
     vterm,
   );
 

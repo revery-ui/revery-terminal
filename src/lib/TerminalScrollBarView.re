@@ -31,19 +31,11 @@ let make =
       ~trackColor,
       (),
     ) => {
-  print_endline("Scrollbar scrolly: " ++ string_of_float(scrollY));
   let totalRows = Screen.getTotalRows(screen);
   let screenRows = Screen.getVisibleRows(screen);
 
   let totalSize = float(totalRows) *. font.lineHeight;
   let screenSize = float(screenRows) *. font.lineHeight;
-  print_endline(
-    Printf.sprintf(
-      "Scroll bar totalSize: %f screenSize: %f",
-      totalSize,
-      screenSize,
-    ),
-  );
 
   let pixelHeight = float_of_int(height);
 

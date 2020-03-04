@@ -70,7 +70,6 @@ let checkResizeTerminalEffect = model => {
 };
 
 let termPropEffect = prop => {
-  prerr_endline("PROP: " ++ Vterm.TermProp.toString(prop));
   Isolinear.Effect.none;
 };
 
