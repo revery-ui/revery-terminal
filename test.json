@@ -1,7 +1,7 @@
 {
   "source": "./package.json",
   "scripts": {
-    "run": "esy '@test' x ReveryTerminalUnitTestRunner"
+    "run": "esy '@test' x ReveryTerminalTestRunner"
   },
   "override": {
       "build": ["dune build -p revery-terminal,revery-terminal-test -j4"],

@@ -1,3 +1,4 @@
+module RingBuffer = RingBuffer;
 module Cursor = Cursor;
 module Font = Font;
 module Screen = Screen;

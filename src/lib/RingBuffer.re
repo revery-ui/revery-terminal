@@ -17,7 +17,7 @@ let push = (item, ringBuffer) => {
   let idx = nextInsertPosition mod capacity;
 
   let startPosition =
-    nextInsertPosition >= capacity ? nextInsertPosition - 1 : startPosition;
+    nextInsertPosition >= capacity ? startPosition + 1 : startPosition;
 
   backingArray[idx] = item;
 
@@ -32,6 +32,8 @@ let size = ringBuffer => {
 
 let getAt = (index, ringBuffer) => {
   let {backingArray, startPosition, capacity, _} = ringBuffer;
-  let idx = (index - startPosition) mod capacity;
+  let idx = abs((index - startPosition) mod capacity);
   backingArray[idx];
 };
+
+let capacity = ({capacity, _}) => capacity;

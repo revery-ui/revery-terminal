@@ -6,4 +6,6 @@ let push: ('a, t('a)) => unit;
 
 let size: t('a) => int;
 
+let capacity: t('a) => int;
+
 let getAt: (int, t('a)) => 'a;
