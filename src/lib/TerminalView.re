@@ -30,6 +30,9 @@ let%component make =
               (
                 ~defaultBackground=?,
                 ~defaultForeground=?,
+                ~scrollBarBackground=Colors.black,
+                ~scrollBarThumb=Colors.darkGray,
+                ~scrollBarThickness=8,
                 ~theme=Theme.default,
                 ~screen: Screen.t,
                 ~cursor: Cursor.t,
@@ -40,7 +43,7 @@ let%component make =
   let%hook (userScrollY, setUserScrollY) = Hooks.state(None);
 
   let totalRows = Screen.getTotalRows(screen);
-  let screenRows = Screen.getScreenRows(screen);
+  let screenRows = Screen.getVisibleRows(screen);
   let scrollBackRows = totalRows - screenRows;
 
   let screenScrollY = float(scrollBackRows) *. font.lineHeight;
@@ -50,6 +53,10 @@ let%component make =
     | Some(v) => v
     | None => screenScrollY
     };
+
+  print_endline (
+    Printf.sprintf("screenScrollY: %f scrollY: %f", screenScrollY, scrollY)
+  );
 
   let bg =
     switch (defaultBackground) {
@@ -211,6 +218,9 @@ let%component make =
         <TerminalScrollBarView
           onScroll
           height={size.height}
+          width={scrollBarThickness}
+          trackColor={scrollBarBackground}
+          thumbColor={scrollBarThumb}
           scrollY
           screen
           font

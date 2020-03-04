@@ -127,6 +127,8 @@ let render =
     (
       ~defaultForeground=?,
       ~defaultBackground=?,
+      ~scrollBarBackground=?,
+      ~scrollBarThumb=?,
       ~theme=Theme.default,
       ~font,
       ~cursor,
@@ -135,6 +137,8 @@ let render =
   <TerminalView
     ?defaultForeground
     ?defaultBackground
+    ?scrollBarBackground
+    ?scrollBarThumb
     theme
     screen
     cursor

@@ -38,7 +38,7 @@ let damaged = (model, damages: list(DamageInfo.t)) => {
   {...model, damageCounter: model.damageCounter + 1};
 };
 
-let getScreenRows = model => model.rows;
+let getVisibleRows = model => model.rows;
 let getTotalRows = model =>
   model.rows + Scrollback.getAvailableRows(model.scrollBack);
 

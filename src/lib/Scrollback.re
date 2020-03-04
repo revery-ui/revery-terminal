@@ -33,8 +33,8 @@ let push = (~cells, scrollBack) => {
 
   rows[idx] = cells;
 
-  scrollback.nextInsertPosition = nextInsertPosition + 1;
-  scrollback.startPosition = startPosition;
+  scrollBack.nextInsertPosition = nextInsertPosition + 1;
+  scrollBack.startPosition = startPosition;
 };
 
 let pop = (~cells as _, scrollBack) => ();

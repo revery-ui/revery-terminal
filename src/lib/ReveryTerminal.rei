@@ -35,9 +35,12 @@ module Screen: {
   // row in the scrollback buffer.
   let getCell: (~row: int, ~column: int, t) => Vterm.ScreenCell.t;
 
-  // Get total rows, including scrollback
+  // [getTotalRows(screen)] returns the count of total rows, including scrollback.
+  // For example, if the screen shows 40 rows, and there are 100 lines
+  // in the scrollback buffer, this would report 140.
   let getTotalRows: t => int;
 
+  // [getVisibleRows(screen)] returns the number of visible rows, not including scrollback.
   let getVisibleRows: t => int;
 
   let getColumns: t => int;
@@ -72,6 +75,8 @@ let render:
   (
     ~defaultForeground: Revery.Color.t=?,
     ~defaultBackground: Revery.Color.t=?,
+    ~scrollBarBackground: Revery.Color.t=?,
+    ~scrollBarThumb: Revery.Color.t=?,
     ~theme: Theme.t=?,
     ~font: Font.t,
     ~cursor: Cursor.t,
