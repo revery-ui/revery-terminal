@@ -160,6 +160,8 @@ let%component make =
                  );
                };
              }};
+               
+          let buffer = Buffer.create(4);
 
           let renderText = (row, yOffset) =>
             {for (column in 0 to columns - 1) {
@@ -167,21 +169,21 @@ let%component make =
 
                let fgColor = getFgColor(cell);
 
-               let buffer = Buffer.create(4);
                Skia.Paint.setColor(textPaint, fgColor);
                Skia.Paint.setTextEncoding(textPaint, Utf8);
                let codeInt = Uchar.to_int(cell.char);
-               Buffer.add_utf_8_uchar(buffer, cell.char);
-               let str = Buffer.contents(buffer);
-               //if (codeInt != 0 && Uchar.is_char(cell.char)) {
-               //let chars = String.make(1, Uchar.to_char(cell.char));
-               CanvasContext.drawText(
-                 ~paint=textPaint,
-                 ~x=float(column) *. characterWidth,
-                 ~y=yOffset +. characterHeight,
-                 ~text=str,
-                 canvasContext,
-               );
+               if (codeInt !== 0) {
+                 Buffer.clear(buffer);
+                 Buffer.add_utf_8_uchar(buffer, cell.char);
+                 let str = Buffer.contents(buffer);
+                 CanvasContext.drawText(
+                   ~paint=textPaint,
+                   ~x=float(column) *. characterWidth,
+                   ~y=yOffset +. characterHeight,
+                   ~text=str,
+                   canvasContext,
+                 );
+               }
              }};
 
           let perLineRenderer =
