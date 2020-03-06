@@ -168,20 +168,20 @@ let%component make =
                let fgColor = getFgColor(cell);
 
                Skia.Paint.setColor(textPaint, fgColor);
-               if (String.length(cell.chars) > 0) {
-                 let char = cell.chars.[0];
-                 let code = Char.code(char);
-                 if (code != 0) {
+              Skia.Paint.setTextEncoding(textPaint, Utf8);
+                 let codeInt = Uchar.to_int(cell.char);
+                 if (codeInt != 0 && Uchar.is_char(cell.char)) {
+                   let chars = String.make(1, Uchar.to_char(cell.char));
                    CanvasContext.drawText(
                      ~paint=textPaint,
                      ~x=float(column) *. characterWidth,
                      ~y=yOffset +. characterHeight,
-                     ~text=String.make(1, cell.chars.[0]),
+                     ~text=chars,
                      canvasContext,
                    );
-                 };
+                 }
                };
-             }};
+             };
 
           let perLineRenderer =
             ImmediateList.render(
