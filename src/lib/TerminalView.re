@@ -167,21 +167,22 @@ let%component make =
 
                let fgColor = getFgColor(cell);
 
+               let buffer = Buffer.create(4);
                Skia.Paint.setColor(textPaint, fgColor);
-              Skia.Paint.setTextEncoding(textPaint, Utf8);
-                 let codeInt = Uchar.to_int(cell.char);
-                 if (codeInt != 0 && Uchar.is_char(cell.char)) {
-                   let chars = String.make(1, Uchar.to_char(cell.char));
-                   CanvasContext.drawText(
-                     ~paint=textPaint,
-                     ~x=float(column) *. characterWidth,
-                     ~y=yOffset +. characterHeight,
-                     ~text=chars,
-                     canvasContext,
-                   );
-                 }
-               };
-             };
+               Skia.Paint.setTextEncoding(textPaint, Utf8);
+               let codeInt = Uchar.to_int(cell.char);
+               Buffer.add_utf_8_uchar(buffer, cell.char);
+               let str = Buffer.contents(buffer);
+               //if (codeInt != 0 && Uchar.is_char(cell.char)) {
+               //let chars = String.make(1, Uchar.to_char(cell.char));
+               CanvasContext.drawText(
+                 ~paint=textPaint,
+                 ~x=float(column) *. characterWidth,
+                 ~y=yOffset +. characterHeight,
+                 ~text=str,
+                 canvasContext,
+               );
+             }};
 
           let perLineRenderer =
             ImmediateList.render(
