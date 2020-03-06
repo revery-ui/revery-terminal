@@ -160,7 +160,7 @@ let%component make =
                  );
                };
              }};
-               
+
           let buffer = Buffer.create(4);
 
           let renderText = (row, yOffset) =>
@@ -183,7 +183,7 @@ let%component make =
                    ~text=str,
                    canvasContext,
                  );
-               }
+               };
              }};
 
           let perLineRenderer =
