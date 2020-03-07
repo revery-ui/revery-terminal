@@ -2,7 +2,6 @@ module DamageInfo = {
   type t = {
     row: int,
     col: int,
-    cell: Vterm.ScreenCell.t,
   };
 };
 
@@ -10,31 +9,42 @@ type t = {
   damageCounter: int,
   rows: int,
   columns: int,
+  dirtyCells: array(bool),
   cells: array(Vterm.ScreenCell.t),
   scrollBack: RingBuffer.t(array(Vterm.ScreenCell.t)),
+  vterm: option(Vterm.t),
 };
 
 let getVisibleCell = (~row, ~column, screen) => {
-  let idx = row * screen.columns + column;
-  if (idx >= Array.length(screen.cells)) {
-    Vterm.ScreenCell.empty;
-  } else {
-    screen.cells[idx];
+  switch (screen.vterm) {
+  | None => Vterm.ScreenCell.empty
+  | Some(vterm) =>
+    let idx = row * screen.columns + column;
+    if (idx >= Array.length(screen.cells)) {
+      Vterm.ScreenCell.empty;
+    } else {
+      if (screen.dirtyCells[idx]) {
+        screen.cells[idx] = Vterm.Screen.getCell(~row, ~col=column, vterm);
+        screen.dirtyCells[idx] = false;
+      };
+
+      screen.cells[idx];
+    };
   };
 };
 
-let updateCell = ({columns, cells, _}, damage: DamageInfo.t) => {
+let updateCell = ({columns, cells, dirtyCells, _}, damage: DamageInfo.t) => {
   let idx = damage.row * columns + damage.col;
-  cells[idx] = damage.cell;
+  dirtyCells[idx] = true;
 };
 
-let updateCells = (model, damages) => {
+let updateDirtyCells = (model, damages) => {
   List.iter(updateCell(model), damages);
 };
 
 let damaged = (model, damages: list(DamageInfo.t)) => {
   // UGLY MUTATION
-  updateCells(model, damages);
+  updateDirtyCells(model, damages);
   {...model, damageCounter: model.damageCounter + 1};
 };
 
@@ -50,7 +60,6 @@ let pushScrollback = (~cells, screen) => {
 let popScrollback = (~cells as _, screen) => {
   {
     // TODO
-
     ...screen,
     damageCounter: screen.damageCounter + 1,
   };
@@ -78,22 +87,27 @@ let resize = (~rows, ~columns, model) => {
     damageCounter: model.damageCounter + 1,
     rows,
     columns,
+    dirtyCells: Array.make(rows * columns, true),
     cells: Array.make(rows * columns, Vterm.ScreenCell.empty),
   };
 };
 
-let make = (~scrollBackSize, ~rows, ~columns) => {
+let make = (~vterm: Vterm.t, ~scrollBackSize, ~rows, ~columns) => {
   damageCounter: 0,
   rows: 0,
   columns: 0,
+  dirtyCells: Array.make(rows * columns, true),
   cells: Array.make(rows * columns, Vterm.ScreenCell.empty),
   scrollBack: RingBuffer.make(~capacity=scrollBackSize, [||]),
+  vterm: Some(vterm),
 };
 
 let initial = {
   damageCounter: 0,
   rows: 0,
   columns: 0,
+  dirtyCells: Array.make(0, true),
   cells: Array.make(0, Vterm.ScreenCell.empty),
   scrollBack: RingBuffer.make(~capacity=0, [||]),
+  vterm: None,
 };
