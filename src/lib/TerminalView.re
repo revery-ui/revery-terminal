@@ -174,8 +174,8 @@ let%component make =
                let codeInt = Uchar.to_int(cell.char);
                if (codeInt !== 0) {
                  Buffer.clear(buffer);
-                 // Need to validate the code point, otherwise we can hit an assertion in 
-                 // the standard library: 
+                 // Need to validate the code point, otherwise we can hit an assertion in
+                 // the standard library:
                  // https://github.com/ocaml/ocaml/blob/849bf6239dd0f9dae45b945c92e24f41d27fd3ad/stdlib/buffer.ml#L117
                  if (codeInt <= 0x10FFFF) {
                    Buffer.add_utf_8_uchar(buffer, cell.char);
@@ -187,7 +187,7 @@ let%component make =
                      ~text=str,
                      canvasContext,
                    );
-                 }
+                 };
                };
              }};
 

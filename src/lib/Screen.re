@@ -17,25 +17,20 @@ type t = {
 
 let getVisibleCell = (~row, ~column, screen) => {
   switch (screen.vterm) {
-  | None => Vterm.ScreenCell.empty;
+  | None => Vterm.ScreenCell.empty
   | Some(vterm) =>
     let idx = row * screen.columns + column;
     if (idx >= Array.length(screen.cells)) {
       Vterm.ScreenCell.empty;
     } else {
-
       if (screen.dirtyCells[idx]) {
-        screen.cells[idx] = Vterm.Screen.getCell(
-          ~row,
-          ~col=column,
-          vterm,
-        );
+        screen.cells[idx] = Vterm.Screen.getCell(~row, ~col=column, vterm);
         screen.dirtyCells[idx] = false;
-      } 
-    
+      };
+
       screen.cells[idx];
     };
-  }
+  };
 };
 
 let updateCell = ({columns, cells, dirtyCells, _}, damage: DamageInfo.t) => {

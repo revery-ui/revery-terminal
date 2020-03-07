@@ -78,8 +78,7 @@ let make =
         let damages = ref([]);
         for (x in startCol to endCol - 1) {
           for (y in startRow to endRow - 1) {
-            damages :=
-              [Screen.DamageInfo.{row: y, col: x}, ...damages^];
+            damages := [Screen.DamageInfo.{row: y, col: x}, ...damages^];
           };
         };
         screen := Screen.damaged(screen^, damages^);
