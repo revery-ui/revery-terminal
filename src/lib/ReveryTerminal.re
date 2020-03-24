@@ -1,3 +1,4 @@
+module RingBuffer = RingBuffer;
 module Cursor = Cursor;
 module Font = Font;
 module Screen = Screen;
@@ -18,10 +19,17 @@ type t = {
 
 type unsubscribe = unit => unit;
 
-let make = (~rows: int, ~columns: int, ~onEffect as dispatch) => {
+let make =
+    (
+      ~scrollBackSize=1000,
+      ~rows: int,
+      ~columns: int,
+      ~onEffect as dispatch,
+      (),
+    ) => {
   let cursor = ref(Cursor.initial);
   let vterm = Vterm.make(~rows, ~cols=columns);
-  let screen = ref(Screen.initial |> Screen.resize(~rows, ~columns));
+  let screen = ref(Screen.make(~vterm, ~scrollBackSize, ~rows, ~columns));
   Vterm.setUtf8(~utf8=true, vterm);
   Vterm.Screen.setAltScreen(~enabled=true, vterm);
 
@@ -47,20 +55,40 @@ let make = (~rows: int, ~columns: int, ~onEffect as dispatch) => {
     vterm,
   );
 
+  Vterm.Screen.setScrollbackPushCallback(
+    ~onPushLine=
+      cells => {
+        screen := Screen.pushScrollback(~cells, screen^);
+        dispatch(ScreenUpdated(screen^));
+      },
+    vterm,
+  );
+  Vterm.Screen.setScrollbackPopCallback(
+    ~onPopLine=
+      cells => {
+        screen := Screen.pushScrollback(~cells, screen^);
+        dispatch(ScreenUpdated(screen^));
+      },
+    vterm,
+  );
+
   Vterm.Screen.setDamageCallback(
     ~onDamage=
       ({startRow, startCol, endRow, endCol}: Vterm.Rect.t) => {
         let damages = ref([]);
         for (x in startCol to endCol - 1) {
           for (y in startRow to endRow - 1) {
-            let cell = Vterm.Screen.getCell(~row=y, ~col=x, vterm);
-            damages :=
-              [Screen.DamageInfo.{row: y, col: x, cell}, ...damages^];
+            damages := [Screen.DamageInfo.{row: y, col: x}, ...damages^];
           };
         };
         screen := Screen.damaged(screen^, damages^);
         dispatch(ScreenUpdated(screen^));
       },
+    vterm,
+  );
+
+  Vterm.Screen.setTermPropCallback(
+    ~onSetTermProp=prop => {dispatch(TermPropChanged(prop))},
     vterm,
   );
 
@@ -75,8 +103,7 @@ let resize = (~rows, ~columns, {vterm, screen, _}) => {
   let damages = ref([]);
   for (x in 0 to columns - 1) {
     for (y in 0 to rows - 1) {
-      let cell = Vterm.Screen.getCell(~row=y, ~col=x, vterm);
-      damages := [Screen.DamageInfo.{row: y, col: x, cell}, ...damages^];
+      damages := [Screen.DamageInfo.{row: y, col: x}, ...damages^];
     };
   };
   screen := Screen.damaged(screen^, damages^);
@@ -90,5 +117,26 @@ let input = (~modifier=Vterm.None, ~key: Vterm.key, {vterm, _}) => {
   Vterm.Keyboard.input(vterm, key, modifier);
 };
 
-let render = (~theme=Theme.default, ~font, ~cursor, screen) =>
-  <TerminalView theme screen cursor font />;
+let render =
+    (
+      ~defaultForeground=?,
+      ~defaultBackground=?,
+      ~scrollBarBackground=?,
+      ~scrollBarThumb=?,
+      ~scrollBarThickness=?,
+      ~theme=Theme.default,
+      ~font,
+      ~cursor,
+      screen,
+    ) =>
+  <TerminalView
+    ?defaultForeground
+    ?defaultBackground
+    ?scrollBarBackground
+    ?scrollBarThumb
+    ?scrollBarThickness
+    theme
+    screen
+    cursor
+    font
+  />;

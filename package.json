@@ -28,17 +28,16 @@
   },
   "dependencies": {
     "revery": "0.29.0",
-    "reason-libvterm": "github:revery-ui/reason-libvterm#e0737be",
-    "isolinear": "^3.0.0"
+    "reason-libvterm": "github:revery-ui/reason-libvterm#91bad1f",
+    "isolinear": "^3.0.0",
+    "@glennsl/timber": "1.0.0"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#5438851",
+    "revery": "revery-ui/revery#ced2dde",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
-    "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755",
-    "timber": "glennsl/timber#ae065bb",
-    "reason-harfbuzz": "revery-ui/reason-harfbuzz#0848520",
-    "isolinear": "revery-ui/isolinear#b17ce17"
+    "isolinear": "revery-ui/isolinear#b17ce17",
+    "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755"
   },
   "scripts": {
    "format": "esy dune build @fmt --auto-promote",

@@ -3,17 +3,10 @@ module Colors = Revery.Colors;
 open Revery.Draw;
 open Revery.UI;
 
-let make =
-    (
-      ~theme=Theme.default,
-      ~screen: Screen.t,
-      ~cursor: Cursor.t,
-      ~font: Font.t,
-      (),
-    ) => {
-  let containerStyle =
+module Styles = {
+  let container = bg =>
     Style.[
-      backgroundColor(Colors.black),
+      backgroundColor(bg),
       position(`Absolute),
       justifyContent(`Center),
       alignItems(`Center),
@@ -23,19 +16,72 @@ let make =
       right(0),
     ];
 
-  let getColor = (color: Vterm.Color.t) => {
-    switch (color) {
-    | DefaultBackground => theme(0)
-    | DefaultForeground => theme(15)
-    | Rgb(r, g, b) =>
-      Skia.Color.makeArgb(
-        255l,
-        r |> Int32.of_int,
-        g |> Int32.of_int,
-        b |> Int32.of_int,
-      )
-    | Index(idx) => theme(idx)
+  let scrollBarContainer =
+    Style.[position(`Absolute), bottom(0), top(0), right(0)];
+};
+
+type terminalSize = {
+  width: int,
+  height: int,
+};
+
+let%component make =
+              (
+                ~defaultBackground=?,
+                ~defaultForeground=?,
+                ~scrollBarBackground=Colors.black,
+                ~scrollBarThumb=Colors.darkGray,
+                ~scrollBarThickness=8,
+                ~theme=Theme.default,
+                ~screen: Screen.t,
+                ~cursor: Cursor.t,
+                ~font: Font.t,
+                (),
+              ) => {
+  let%hook (size, setSize) = Hooks.state({width: 0, height: 0});
+  let%hook (userScrollY, setUserScrollY) = Hooks.state(None);
+
+  let totalRows = Screen.getTotalRows(screen);
+  let screenRows = Screen.getVisibleRows(screen);
+  let scrollBackRows = totalRows - screenRows;
+
+  let screenScrollY = float(scrollBackRows) *. font.lineHeight;
+
+  let scrollY =
+    switch (userScrollY) {
+    | Some(v) => v
+    | None => screenScrollY
     };
+
+  let bg =
+    switch (defaultBackground) {
+    | Some(v) => v
+    | None => theme(0)
+    };
+
+  let fg =
+    switch (defaultForeground) {
+    | Some(v) => v
+    | None => theme(15)
+    };
+
+  let getColor = (color: Vterm.Color.t) => {
+    let outColor =
+      switch (color) {
+      | DefaultBackground => bg
+      | DefaultForeground => fg
+      | Rgb(r, g, b) =>
+        if (r == 0 && g == 0 && b == 0) {
+          bg;
+        } else if (r == 240 && g == 240 && b == 240) {
+          fg;
+        } else {
+          Revery.Color.rgb_int(r, g, b);
+        }
+      | Index(idx) => theme(idx)
+      };
+
+    Revery.Color.toSkia(outColor);
   };
 
   let getFgColor = (cell: Vterm.ScreenCell.t) => {
@@ -46,82 +92,144 @@ let make =
     cell.reverse == 0 ? getColor(cell.bg) : getColor(cell.fg);
   };
 
+  let onScroll = y => {
+    let y = y <= 0. ? 0. : y;
+    let maxScroll = float(scrollBackRows) *. font.lineHeight;
+    let y = y >= maxScroll ? maxScroll : y;
+
+    if (Float.abs(y -. screenScrollY) <= 10.0) {
+      setUserScrollY(_ => None);
+    } else {
+      setUserScrollY(_ => Some(y));
+    };
+  };
+
+  let onWheel = ({deltaY, _}: NodeEvents.mouseWheelEventParams) => {
+    let newScroll = scrollY -. deltaY *. 25.0;
+    onScroll(newScroll);
+  };
+
   let element =
-    <Canvas
-      style=containerStyle
-      render={canvasContext => {
-        let {font, lineHeight, characterWidth, characterHeight, fontSize}: Font.t = font;
-        let defaultBackground = Colors.black |> Color.toSkia;
+    <View
+      style={Styles.container(bg)}
+      onMouseWheel=onWheel
+      onDimensionsChanged={({width, height, _}) => {
+        setSize(_ => {width, height})
+      }}>
+      <Canvas
+        style={Styles.container(bg)}
+        render={canvasContext => {
+          let {
+            font,
+            lineHeight,
+            characterWidth,
+            characterHeight,
+            fontSize,
+            smoothing,
+          }: Font.t = font;
+          let defaultBackgroundColor = bg |> Color.toSkia;
 
-        let backgroundPaint = Skia.Paint.make();
-        Skia.Paint.setAntiAlias(backgroundPaint, false);
+          let backgroundPaint = Skia.Paint.make();
+          Skia.Paint.setAntiAlias(backgroundPaint, false);
 
-        let textPaint = Skia.Paint.make();
-        let typeFace = Revery.Font.getSkiaTypeface(font);
-        Skia.Paint.setTypeface(textPaint, typeFace);
-        Skia.Paint.setTextSize(textPaint, fontSize);
-        Skia.Paint.setAntiAlias(textPaint, true);
-        Skia.Paint.setSubpixelText(textPaint, true);
-        Skia.Paint.setLcdRenderText(textPaint, true);
+          let textPaint = Skia.Paint.make();
+          let typeFace = Revery.Font.getSkiaTypeface(font);
+          Skia.Paint.setTypeface(textPaint, typeFace);
+          Skia.Paint.setTextSize(textPaint, fontSize);
+          Revery.Font.Smoothing.setPaint(~smoothing, textPaint);
 
-        let columns = Screen.getColumns(screen);
-        let rows = Screen.getRows(screen);
-        for (column in 0 to columns - 1) {
-          for (row in 0 to rows - 1) {
-            let cell = Screen.getCell(~row, ~column, screen);
+          Skia.Paint.setLcdRenderText(textPaint, true);
 
-            let bgColor = getBgColor(cell);
-            if (bgColor != defaultBackground) {
-              Skia.Paint.setColor(backgroundPaint, bgColor);
-              CanvasContext.drawRectLtwh(
-                ~paint=backgroundPaint,
-                ~left=float(column) *. characterWidth,
-                ~top=float(row) *. lineHeight,
-                ~height=lineHeight,
-                ~width=characterWidth,
-                canvasContext,
-              );
-            };
+          let columns = Screen.getColumns(screen);
+          let rows = Screen.getTotalRows(screen);
+
+          let renderBackground = (row, yOffset) =>
+            {for (column in 0 to columns - 1) {
+               let cell = Screen.getCell(~row, ~column, screen);
+
+               let bgColor = getBgColor(cell);
+               if (bgColor != defaultBackgroundColor) {
+                 Skia.Paint.setColor(backgroundPaint, bgColor);
+                 CanvasContext.drawRectLtwh(
+                   ~paint=backgroundPaint,
+                   ~left=float(column) *. characterWidth,
+                   ~top=yOffset,
+                   ~height=lineHeight,
+                   ~width=characterWidth,
+                   canvasContext,
+                 );
+               };
+             }};
+
+          let buffer = Buffer.create(16);
+
+          let renderText = (row, yOffset) =>
+            {for (column in 0 to columns - 1) {
+               let cell = Screen.getCell(~row, ~column, screen);
+
+               let fgColor = getFgColor(cell);
+
+               Skia.Paint.setColor(textPaint, fgColor);
+               Skia.Paint.setTextEncoding(textPaint, Utf8);
+               let codeInt = Uchar.to_int(cell.char);
+               if (codeInt !== 0) {
+                 Buffer.clear(buffer);
+                 // Need to validate the code point, otherwise we can hit an assertion in
+                 // the standard library:
+                 // https://github.com/ocaml/ocaml/blob/849bf6239dd0f9dae45b945c92e24f41d27fd3ad/stdlib/buffer.ml#L117
+                 if (codeInt <= 0x10FFFF) {
+                   Buffer.add_utf_8_uchar(buffer, cell.char);
+                   let str = Buffer.contents(buffer);
+                   CanvasContext.drawText(
+                     ~paint=textPaint,
+                     ~x=float(column) *. characterWidth,
+                     ~y=yOffset +. characterHeight,
+                     ~text=str,
+                     canvasContext,
+                   );
+                 };
+               };
+             }};
+
+          let perLineRenderer =
+            ImmediateList.render(
+              ~scrollY,
+              ~rowHeight=lineHeight,
+              ~height=lineHeight *. float(rows),
+              ~count=rows,
+            );
+
+          perLineRenderer(~render=renderBackground, ());
+          perLineRenderer(~render=renderText, ());
+
+          // If the cursor is visible, let's paint it now
+          if (cursor.visible) {
+            Skia.Paint.setColor(textPaint, getColor(DefaultForeground));
+            CanvasContext.drawRectLtwh(
+              ~paint=textPaint,
+              ~left=float(cursor.column) *. characterWidth,
+              ~top=
+                float(scrollBackRows + cursor.row) *. lineHeight -. scrollY,
+              ~width=characterWidth,
+              ~height=lineHeight,
+              canvasContext,
+            );
           };
-        };
-
-        for (column in 0 to columns - 1) {
-          for (row in 0 to rows - 1) {
-            let cell = Screen.getCell(~row, ~column, screen);
-
-            let fgColor = getFgColor(cell);
-
-            Skia.Paint.setColor(textPaint, fgColor);
-            if (String.length(cell.chars) > 0) {
-              let char = cell.chars.[0];
-              let code = Char.code(char);
-              if (code != 0) {
-                CanvasContext.drawText(
-                  ~paint=textPaint,
-                  ~x=float(column) *. characterWidth,
-                  ~y=float(row) *. lineHeight +. characterHeight,
-                  ~text=String.make(1, cell.chars.[0]),
-                  canvasContext,
-                );
-              };
-            };
-          };
-        };
-
-        // If the cursor is visible, let's paint it now
-        if (cursor.visible) {
-          Skia.Paint.setColor(textPaint, Colors.white |> Color.toSkia);
-          CanvasContext.drawRectLtwh(
-            ~paint=textPaint,
-            ~left=float(cursor.column) *. characterWidth,
-            ~top=float(cursor.row) *. lineHeight,
-            ~width=characterWidth,
-            ~height=lineHeight,
-            canvasContext,
-          );
-        };
-      }}
-    />;
+        }}
+      />
+      <View style=Styles.scrollBarContainer>
+        <TerminalScrollBarView
+          onScroll
+          height={size.height}
+          width=scrollBarThickness
+          trackColor=scrollBarBackground
+          thumbColor=scrollBarThumb
+          scrollY
+          screen
+          font
+        />
+      </View>
+    </View>;
 
   element;
 };

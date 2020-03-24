@@ -39,7 +39,7 @@ module Internal = {
         };
       };
 
-      let terminal = ReveryTerminal.make(~rows, ~columns, ~onEffect);
+      let terminal = ReveryTerminal.make(~rows, ~columns, ~onEffect, ());
       let inputThread: Thread.t =
         Thread.create(
           () => {

@@ -1,0 +1,9 @@
+(library
+    (name Lib_Test)
+    (public_name revery-terminal-test.lib)
+    (library_flags (-linkall -g))
+    (modules (:standard))
+    (libraries
+        rely.lib
+        ReveryTerminal
+    ))
