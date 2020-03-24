@@ -98,12 +98,12 @@ module Sub = {
       type msg = outerMsg;
       type params = terminalSubParams;
 
-      let subscriptionName = "Terminal";
+      let name = "Terminal";
       type state = {
         id: int,
         unsubscribe: unit => unit,
       };
-      let getUniqueId = (params: params) => string_of_int(params.id);
+      let id = (params: params) => string_of_int(params.id);
 
       let init = (~params: params, ~dispatch) => {
         let info =
