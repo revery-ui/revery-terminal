@@ -106,22 +106,19 @@ let getColor =
     | None => theme(15)
     };
 
-  let outColor =
-    switch (color) {
-    | DefaultBackground => bg
-    | DefaultForeground => fg
-    | Rgb(r, g, b) =>
-      if (r == 0 && g == 0 && b == 0) {
-        bg;
-      } else if (r == 240 && g == 240 && b == 240) {
-        fg;
-      } else {
-        Revery.Color.rgb_int(r, g, b);
-      }
-    | Index(idx) => theme(idx)
-    };
-
-  outColor;
+  switch (color) {
+  | DefaultBackground => bg
+  | DefaultForeground => fg
+  | Rgb(r, g, b) =>
+    if (r == 0 && g == 0 && b == 0) {
+      bg;
+    } else if (r == 240 && g == 240 && b == 240) {
+      fg;
+    } else {
+      Revery.Color.rgb_int(r, g, b);
+    }
+  | Index(idx) => theme(idx)
+  };
 };
 
 let getForegroundColor =
@@ -137,7 +134,16 @@ let getForegroundColor =
 };
 
 let getBackgroundColor =
-    (~defaultBackground=?, ~defaultForeground=?, ~theme, cell) => Revery.Colors.black;
+    (
+      ~defaultBackground=?,
+      ~defaultForeground=?,
+      ~theme,
+      cell: Vterm.ScreenCell.t,
+    ) => {
+  cell.reverse == 0
+    ? getColor(~theme, ~defaultBackground, ~defaultForeground, cell.bg)
+    : getColor(~theme, ~defaultBackground, ~defaultForeground, cell.fg);
+};
 
 let make = (~vterm: Vterm.t, ~scrollBackSize, ~rows, ~columns) => {
   damageCounter: 0,
