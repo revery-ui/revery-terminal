@@ -92,6 +92,53 @@ let resize = (~rows, ~columns, model) => {
   };
 };
 
+let getColor =
+    (~theme, ~defaultBackground, ~defaultForeground, color: Vterm.Color.t) => {
+  let bg =
+    switch (defaultBackground) {
+    | Some(v) => v
+    | None => theme(0)
+    };
+
+  let fg =
+    switch (defaultForeground) {
+    | Some(v) => v
+    | None => theme(15)
+    };
+
+  let outColor =
+    switch (color) {
+    | DefaultBackground => bg
+    | DefaultForeground => fg
+    | Rgb(r, g, b) =>
+      if (r == 0 && g == 0 && b == 0) {
+        bg;
+      } else if (r == 240 && g == 240 && b == 240) {
+        fg;
+      } else {
+        Revery.Color.rgb_int(r, g, b);
+      }
+    | Index(idx) => theme(idx)
+    };
+
+  outColor;
+};
+
+let getForegroundColor =
+    (
+      ~defaultBackground=?,
+      ~defaultForeground=?,
+      ~theme,
+      cell: Vterm.ScreenCell.t,
+    ) => {
+  cell.reverse == 0
+    ? getColor(~theme, ~defaultBackground, ~defaultForeground, cell.fg)
+    : getColor(~theme, ~defaultBackground, ~defaultForeground, cell.bg);
+};
+
+let getBackgroundColor =
+    (~defaultBackground=?, ~defaultForeground=?, ~theme, cell) => Revery.Colors.black;
+
 let make = (~vterm: Vterm.t, ~scrollBackSize, ~rows, ~columns) => {
   damageCounter: 0,
   rows: 0,

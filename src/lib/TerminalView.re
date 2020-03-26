@@ -59,38 +59,23 @@ let%component make =
     | None => theme(0)
     };
 
-  let fg =
-    switch (defaultForeground) {
-    | Some(v) => v
-    | None => theme(15)
-    };
+  let getFgColor = cell =>
+    Screen.getForegroundColor(
+      ~defaultBackground?,
+      ~defaultForeground?,
+      ~theme,
+      cell,
+    )
+    |> Revery.Color.toSkia;
 
-  let getColor = (color: Vterm.Color.t) => {
-    let outColor =
-      switch (color) {
-      | DefaultBackground => bg
-      | DefaultForeground => fg
-      | Rgb(r, g, b) =>
-        if (r == 0 && g == 0 && b == 0) {
-          bg;
-        } else if (r == 240 && g == 240 && b == 240) {
-          fg;
-        } else {
-          Revery.Color.rgb_int(r, g, b);
-        }
-      | Index(idx) => theme(idx)
-      };
-
-    Revery.Color.toSkia(outColor);
-  };
-
-  let getFgColor = (cell: Vterm.ScreenCell.t) => {
-    cell.reverse == 0 ? getColor(cell.fg) : getColor(cell.bg);
-  };
-
-  let getBgColor = (cell: Vterm.ScreenCell.t) => {
-    cell.reverse == 0 ? getColor(cell.bg) : getColor(cell.fg);
-  };
+  let getBgColor = cell =>
+    Screen.getBackgroundColor(
+      ~defaultBackground?,
+      ~defaultForeground?,
+      ~theme,
+      cell,
+    )
+    |> Revery.Color.toSkia;
 
   let onScroll = y => {
     let y = y <= 0. ? 0. : y;
@@ -204,7 +189,15 @@ let%component make =
 
           // If the cursor is visible, let's paint it now
           if (cursor.visible) {
-            Skia.Paint.setColor(textPaint, getColor(DefaultForeground));
+            let cursorColor =
+              (
+                switch (defaultForeground) {
+                | Some(color) => color
+                | None => theme(15)
+                }
+              )
+              |> Revery.Color.toSkia;
+            Skia.Paint.setColor(textPaint, cursorColor);
             CanvasContext.drawRectLtwh(
               ~paint=textPaint,
               ~left=float(cursor.column) *. characterWidth,
