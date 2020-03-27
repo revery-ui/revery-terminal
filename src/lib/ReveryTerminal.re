@@ -58,7 +58,7 @@ let make =
   Vterm.Screen.setScrollbackPushCallback(
     ~onPushLine=
       cells => {
-        screen := Screen.pushScrollback(~cells, screen^);
+        screen := Screen.Internal.pushScrollback(~cells, screen^);
         dispatch(ScreenUpdated(screen^));
       },
     vterm,
@@ -66,7 +66,7 @@ let make =
   Vterm.Screen.setScrollbackPopCallback(
     ~onPopLine=
       cells => {
-        screen := Screen.pushScrollback(~cells, screen^);
+        screen := Screen.Internal.pushScrollback(~cells, screen^);
         dispatch(ScreenUpdated(screen^));
       },
     vterm,
@@ -78,10 +78,11 @@ let make =
         let damages = ref([]);
         for (x in startCol to endCol - 1) {
           for (y in startRow to endRow - 1) {
-            damages := [Screen.DamageInfo.{row: y, col: x}, ...damages^];
+            damages :=
+              [Screen.Internal.DamageInfo.{row: y, col: x}, ...damages^];
           };
         };
-        screen := Screen.damaged(screen^, damages^);
+        screen := Screen.Internal.damaged(screen^, damages^);
         dispatch(ScreenUpdated(screen^));
       },
     vterm,
@@ -103,10 +104,10 @@ let resize = (~rows, ~columns, {vterm, screen, _}) => {
   let damages = ref([]);
   for (x in 0 to columns - 1) {
     for (y in 0 to rows - 1) {
-      damages := [Screen.DamageInfo.{row: y, col: x}, ...damages^];
+      damages := [Screen.Internal.DamageInfo.{row: y, col: x}, ...damages^];
     };
   };
-  screen := Screen.damaged(screen^, damages^);
+  screen := Screen.Internal.damaged(screen^, damages^);
 };
 
 let write = (~input: string, {vterm, _}) => {
@@ -116,6 +117,8 @@ let write = (~input: string, {vterm, _}) => {
 let input = (~modifier=Vterm.None, ~key: Vterm.key, {vterm, _}) => {
   Vterm.Keyboard.input(vterm, key, modifier);
 };
+
+let screen = ({screen, _}) => screen^;
 
 let render =
     (
