@@ -1,10 +1,3 @@
-module DamageInfo = {
-  type t = {
-    row: int,
-    col: int,
-  };
-};
-
 type t = {
   damageCounter: int,
   rows: int,
@@ -15,61 +8,89 @@ type t = {
   vterm: option(Vterm.t),
 };
 
-let getVisibleCell = (~row, ~column, screen) => {
-  switch (screen.vterm) {
-  | None => Vterm.ScreenCell.empty
-  | Some(vterm) =>
-    let idx = row * screen.columns + column;
-    if (idx >= Array.length(screen.cells)) {
-      Vterm.ScreenCell.empty;
-    } else {
-      if (screen.dirtyCells[idx]) {
-        screen.cells[idx] = Vterm.Screen.getCell(~row, ~col=column, vterm);
-        screen.dirtyCells[idx] = false;
-      };
-
-      screen.cells[idx];
+module Internal = {
+  module DamageInfo = {
+    type t = {
+      row: int,
+      col: int,
     };
   };
-};
 
-let updateCell = ({columns, cells, dirtyCells, _}, damage: DamageInfo.t) => {
-  let idx = damage.row * columns + damage.col;
-  dirtyCells[idx] = true;
-};
+  let updateCell = ({columns, cells, dirtyCells, _}, damage: DamageInfo.t) => {
+    let idx = damage.row * columns + damage.col;
+    dirtyCells[idx] = true;
+  };
 
-let updateDirtyCells = (model, damages) => {
-  List.iter(updateCell(model), damages);
-};
+  let updateDirtyCells = (model, damages) => {
+    List.iter(updateCell(model), damages);
+  };
+  let damaged = (model, damages: list(DamageInfo.t)) => {
+    // UGLY MUTATION
+    updateDirtyCells(model, damages);
+    {...model, damageCounter: model.damageCounter + 1};
+  };
 
-let damaged = (model, damages: list(DamageInfo.t)) => {
-  // UGLY MUTATION
-  updateDirtyCells(model, damages);
-  {...model, damageCounter: model.damageCounter + 1};
+  let getColor =
+      (~theme, ~defaultBackground, ~defaultForeground, color: Vterm.Color.t) => {
+    let bg = defaultBackground |> Option.value(~default=theme(0));
+    let fg = defaultForeground |> Option.value(~default=theme(15));
+
+    switch (color) {
+    | DefaultBackground => bg
+    | DefaultForeground => fg
+    | Rgb(r, g, b) =>
+      if (r == 0 && g == 0 && b == 0) {
+        bg;
+      } else if (r == 240 && g == 240 && b == 240) {
+        fg;
+      } else {
+        Revery.Color.rgb_int(r, g, b);
+      }
+    | Index(idx) => theme(idx)
+    };
+  };
+  let pushScrollback = (~cells, screen) => {
+    RingBuffer.push(cells, screen.scrollBack);
+
+    {...screen, damageCounter: screen.damageCounter + 1};
+  };
+
+  let popScrollback = (~cells as _, screen) => {
+    {
+      // TODO
+      ...screen,
+      damageCounter: screen.damageCounter + 1,
+    };
+  };
+
+  let getVisibleCell = (~row, ~column, screen) => {
+    switch (screen.vterm) {
+    | None => Vterm.ScreenCell.empty
+    | Some(vterm) =>
+      let idx = row * screen.columns + column;
+      if (idx >= Array.length(screen.cells)) {
+        Vterm.ScreenCell.empty;
+      } else {
+        if (screen.dirtyCells[idx]) {
+          screen.cells[idx] = Vterm.Screen.getCell(~row, ~col=column, vterm);
+          screen.dirtyCells[idx] = false;
+        };
+
+        screen.cells[idx];
+      };
+    };
+  };
+
 };
 
 let getVisibleRows = model => model.rows;
 let getTotalRows = model => model.rows + RingBuffer.size(model.scrollBack);
 
-let pushScrollback = (~cells, screen) => {
-  RingBuffer.push(cells, screen.scrollBack);
-
-  {...screen, damageCounter: screen.damageCounter + 1};
-};
-
-let popScrollback = (~cells as _, screen) => {
-  {
-    // TODO
-    ...screen,
-    damageCounter: screen.damageCounter + 1,
-  };
-};
-
 let getCell = (~row, ~column, screen) => {
   let scrollbackRows = RingBuffer.size(screen.scrollBack);
 
   if (row >= scrollbackRows) {
-    getVisibleCell(~row=row - scrollbackRows, ~column, screen);
+    Internal.getVisibleCell(~row=row - scrollbackRows, ~column, screen);
   } else {
     let scrollbackRow = RingBuffer.getAt(row, screen.scrollBack);
     if (column >= Array.length(scrollbackRow)) {
@@ -92,35 +113,6 @@ let resize = (~rows, ~columns, model) => {
   };
 };
 
-let getColor =
-    (~theme, ~defaultBackground, ~defaultForeground, color: Vterm.Color.t) => {
-  let bg =
-    switch (defaultBackground) {
-    | Some(v) => v
-    | None => theme(0)
-    };
-
-  let fg =
-    switch (defaultForeground) {
-    | Some(v) => v
-    | None => theme(15)
-    };
-
-  switch (color) {
-  | DefaultBackground => bg
-  | DefaultForeground => fg
-  | Rgb(r, g, b) =>
-    if (r == 0 && g == 0 && b == 0) {
-      bg;
-    } else if (r == 240 && g == 240 && b == 240) {
-      fg;
-    } else {
-      Revery.Color.rgb_int(r, g, b);
-    }
-  | Index(idx) => theme(idx)
-  };
-};
-
 let getForegroundColor =
     (
       ~defaultBackground=?,
@@ -128,9 +120,9 @@ let getForegroundColor =
       ~theme,
       cell: Vterm.ScreenCell.t,
     ) => {
-  cell.reverse == 0
-    ? getColor(~theme, ~defaultBackground, ~defaultForeground, cell.fg)
-    : getColor(~theme, ~defaultBackground, ~defaultForeground, cell.bg);
+  let getColor = Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
+  let color = cell.reverse == 0 ? cell.fg : cell.bg;
+  getColor(color);
 };
 
 let getBackgroundColor =
@@ -140,9 +132,9 @@ let getBackgroundColor =
       ~theme,
       cell: Vterm.ScreenCell.t,
     ) => {
-  cell.reverse == 0
-    ? getColor(~theme, ~defaultBackground, ~defaultForeground, cell.bg)
-    : getColor(~theme, ~defaultBackground, ~defaultForeground, cell.fg);
+  let getColor = Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
+  let color = cell.reverse == 0 ? cell.bg : cell.fg;
+  getColor(color);
 };
 
 let make = (~vterm: Vterm.t, ~scrollBackSize, ~rows, ~columns) => {
