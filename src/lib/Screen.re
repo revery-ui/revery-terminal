@@ -16,7 +16,7 @@ module Internal = {
     };
   };
 
-  let updateCell = ({columns, cells, dirtyCells, _}, damage: DamageInfo.t) => {
+  let updateCell = ({columns, dirtyCells, _}, damage: DamageInfo.t) => {
     let idx = damage.row * columns + damage.col;
     dirtyCells[idx] = true;
   };
@@ -80,7 +80,6 @@ module Internal = {
       };
     };
   };
-
 };
 
 let getVisibleRows = model => model.rows;
@@ -120,7 +119,8 @@ let getForegroundColor =
       ~theme,
       cell: Vterm.ScreenCell.t,
     ) => {
-  let getColor = Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
+  let getColor =
+    Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
   let color = cell.reverse == 0 ? cell.fg : cell.bg;
   getColor(color);
 };
@@ -132,7 +132,8 @@ let getBackgroundColor =
       ~theme,
       cell: Vterm.ScreenCell.t,
     ) => {
-  let getColor = Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
+  let getColor =
+    Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
   let color = cell.reverse == 0 ? cell.bg : cell.fg;
   getColor(color);
 };
