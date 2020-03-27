@@ -190,13 +190,10 @@ let%component make =
           // If the cursor is visible, let's paint it now
           if (cursor.visible) {
             let cursorColor =
-              (
-                switch (defaultForeground) {
-                | Some(color) => color
-                | None => theme(15)
-                }
-              )
+              defaultForeground
+              |> Option.value(~default=theme(15))
               |> Revery.Color.toSkia;
+
             Skia.Paint.setColor(textPaint, cursorColor);
             CanvasContext.drawRectLtwh(
               ~paint=textPaint,
