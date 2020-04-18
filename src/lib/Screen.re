@@ -9,25 +9,17 @@ type t = {
 };
 
 module Internal = {
-  module DamageInfo = {
-    type t = {
-      row: int,
-      col: int,
-    };
-  };
-
-  let updateCell = ({columns, dirtyCells, _}, damage: DamageInfo.t) => {
-    let idx = damage.row * columns + damage.col;
+  let markDamaged = ({columns, dirtyCells, _}, row, col) => {
+    let idx = row * columns + col;
     dirtyCells[idx] = true;
   };
 
-  let updateDirtyCells = (model, damages) => {
-    List.iter(updateCell(model), damages);
-  };
-  let damaged = (model, damages: list(DamageInfo.t)) => {
-    // UGLY MUTATION
-    updateDirtyCells(model, damages);
-    {...model, damageCounter: model.damageCounter + 1};
+  let bumpDamageCounter = model => {
+    {
+      // UGLY MUTATION
+      ...model,
+      damageCounter: model.damageCounter + 1,
+    };
   };
 
   let getColor =

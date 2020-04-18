@@ -3,6 +3,8 @@ module Colors = Revery.Colors;
 open Revery.Draw;
 open Revery.UI;
 
+open Accumulator;
+
 module Styles = {
   let container = bg =>
     Style.[
@@ -129,52 +131,60 @@ let%component make =
           let rows = Screen.getTotalRows(screen);
 
           let renderBackground = (row, yOffset) =>
-            {for (column in 0 to columns - 1) {
+            {let accumulator =
+               ref(
+                 BackgroundColorAccumulator.create(
+                   (startColumn, endColumn, color) =>
+                   if (color !== defaultBackgroundColor) {
+                     Skia.Paint.setColor(backgroundPaint, color);
+                     CanvasContext.drawRectLtwh(
+                       ~paint=backgroundPaint,
+                       ~left=float(startColumn) *. characterWidth,
+                       ~top=yOffset,
+                       ~height=lineHeight,
+                       ~width=
+                         float(endColumn - startColumn) *. characterWidth,
+                       canvasContext,
+                     );
+                   }
+                 ),
+               );
+             for (column in 0 to columns - 1) {
                let cell = Screen.getCell(~row, ~column, screen);
 
                let bgColor = getBgColor(cell);
-               if (bgColor != defaultBackgroundColor) {
-                 Skia.Paint.setColor(backgroundPaint, bgColor);
-                 CanvasContext.drawRectLtwh(
-                   ~paint=backgroundPaint,
-                   ~left=float(column) *. characterWidth,
-                   ~top=yOffset,
-                   ~height=lineHeight,
-                   ~width=characterWidth,
-                   canvasContext,
-                 );
-               };
-             }};
-
-          let buffer = Buffer.create(16);
+               let item = BackgroundColorAccumulator.{column, color: bgColor};
+               accumulator := Accumulator.add(item, accumulator^);
+             };
+             Accumulator.flush(accumulator^)};
 
           let renderText = (row, yOffset) =>
-            {for (column in 0 to columns - 1) {
-               let cell = Screen.getCell(~row, ~column, screen);
-
-               let fgColor = getFgColor(cell);
-
-               Skia.Paint.setColor(textPaint, fgColor);
-               Skia.Paint.setTextEncoding(textPaint, Utf8);
-               let codeInt = Uchar.to_int(cell.char);
-               if (codeInt !== 0) {
-                 Buffer.clear(buffer);
-                 // Need to validate the code point, otherwise we can hit an assertion in
-                 // the standard library:
-                 // https://github.com/ocaml/ocaml/blob/849bf6239dd0f9dae45b945c92e24f41d27fd3ad/stdlib/buffer.ml#L117
-                 if (codeInt <= 0x10FFFF) {
-                   Buffer.add_utf_8_uchar(buffer, cell.char);
+            {Skia.Paint.setTextEncoding(textPaint, Utf8);
+             let accumulator =
+               ref(
+                 TextAccumulator.create((startColumn, buffer, color) => {
+                   Skia.Paint.setColor(textPaint, color);
                    let str = Buffer.contents(buffer);
                    CanvasContext.drawText(
                      ~paint=textPaint,
-                     ~x=float(column) *. characterWidth,
+                     ~x=float(startColumn) *. characterWidth,
                      ~y=yOffset +. characterHeight,
                      ~text=str,
                      canvasContext,
                    );
-                 };
-               };
-             }};
+                 }),
+               );
+
+             for (column in 0 to columns - 1) {
+               let cell = Screen.getCell(~row, ~column, screen);
+
+               let fgColor = getFgColor(cell);
+
+               let item =
+                 TextAccumulator.{column, color: fgColor, uchar: cell.char};
+               accumulator := Accumulator.add(item, accumulator^);
+             };
+             Accumulator.flush(accumulator^)};
 
           let perLineRenderer =
             ImmediateList.render(

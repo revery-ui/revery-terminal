@@ -75,14 +75,13 @@ let make =
   Vterm.Screen.setDamageCallback(
     ~onDamage=
       ({startRow, startCol, endRow, endCol}: Vterm.Rect.t) => {
-        let damages = ref([]);
-        for (x in startCol to endCol - 1) {
-          for (y in startRow to endRow - 1) {
-            damages :=
-              [Screen.Internal.DamageInfo.{row: y, col: x}, ...damages^];
+        let _screen = screen^;
+        for (col in startCol to endCol - 1) {
+          for (row in startRow to endRow - 1) {
+            Screen.Internal.markDamaged(_screen, row, col);
           };
         };
-        screen := Screen.Internal.damaged(screen^, damages^);
+        screen := Screen.Internal.bumpDamageCounter(_screen);
         dispatch(ScreenUpdated(screen^));
       },
     vterm,
@@ -101,13 +100,13 @@ let resize = (~rows, ~columns, {vterm, screen, _}) => {
   Vterm.setSize(~size={rows, cols: columns}, vterm);
 
   // After the size changed - re-get all the cells
-  let damages = ref([]);
-  for (x in 0 to columns - 1) {
-    for (y in 0 to rows - 1) {
-      damages := [Screen.Internal.DamageInfo.{row: y, col: x}, ...damages^];
+  let _screen = screen^;
+  for (col in 0 to columns - 1) {
+    for (row in 0 to rows - 1) {
+      Screen.Internal.markDamaged(_screen, row, col);
     };
   };
-  screen := Screen.Internal.damaged(screen^, damages^);
+  screen := Screen.Internal.bumpDamageCounter(_screen);
 };
 
 let write = (~input: string, {vterm, _}) => {
