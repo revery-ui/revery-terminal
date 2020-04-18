@@ -25,6 +25,96 @@ type terminalSize = {
   height: int,
 };
 
+module Accumulator = {
+  type t('state, 'item) = {
+    initialState: 'state,
+    currentState: 'state,
+    shouldMerge: ('state, 'item) => bool,
+    merge: ('state, 'item) => 'state,
+    flush: 'state => unit,
+  };
+
+  let create =
+      (
+        ~initialState: 'state,
+        ~shouldMerge: ('state, 'item) => bool,
+        ~merge: ('state, 'item) => 'state,
+        ~flush: 'state => unit,
+      ) => {
+    currentState: initialState,
+    initialState,
+    shouldMerge,
+    merge,
+    flush,
+  };
+
+  let add = (item: 'item, accumulator: t('state, 'item)) => {
+    let {shouldMerge, currentState, merge, flush, initialState} = accumulator;
+    if (shouldMerge(currentState, item)) {
+      let newState = merge(currentState, item);
+      {...accumulator, currentState: newState};
+    } else {
+      flush(accumulator.currentState);
+      let newState = merge(initialState, item);
+      {...accumulator, currentState: newState};
+    };
+  };
+
+  let flush = accumulator => {
+    accumulator.flush(accumulator.currentState);
+  };
+};
+
+module BackgroundColorAccumulator = {
+  type cells = {
+    startColumn: int,
+    endColumn: int,
+    color: Skia.Color.t,
+  };
+
+  type state = option(cells);
+
+  type item = {
+    color: Skia.Color.t,
+    column: int,
+  };
+
+  type t = Accumulator.t(state, item);
+
+  let initialState = None;
+
+  let shouldMerge = (state, item) =>
+    switch (state) {
+    | None => true
+    | Some(({color, _}: cells)) => color == item.color
+    };
+
+  let merge = (state: state, item: item) =>
+    switch (state) {
+    | None =>
+      Some({
+        startColumn: item.column,
+        endColumn: item.column + 1,
+        color: item.color,
+      })
+    | Some({color, startColumn, endColumn}) =>
+      Some({startColumn, endColumn: item.column + 1, color})
+    };
+
+  let create = draw => {
+    let flush: state => unit =
+      state => {
+        switch (state) {
+        | None => ()
+        | Some(state) =>
+          draw(state.startColumn, state.endColumn, state.color)
+        };
+      };
+
+    Accumulator.create(~initialState, ~shouldMerge, ~merge, ~flush);
+  };
+};
+
 let%component make =
               (
                 ~defaultBackground=?,
@@ -129,22 +219,32 @@ let%component make =
           let rows = Screen.getTotalRows(screen);
 
           let renderBackground = (row, yOffset) =>
-            {for (column in 0 to columns - 1) {
+            {let accumulator =
+               ref(
+                 BackgroundColorAccumulator.create(
+                   (startColumn, endColumn, color) =>
+                   if (color !== defaultBackgroundColor) {
+                     Skia.Paint.setColor(backgroundPaint, color);
+                     CanvasContext.drawRectLtwh(
+                       ~paint=backgroundPaint,
+                       ~left=float(startColumn) *. characterWidth,
+                       ~top=yOffset,
+                       ~height=lineHeight,
+                       ~width=
+                         float(endColumn - startColumn) *. characterWidth,
+                       canvasContext,
+                     );
+                   }
+                 ),
+               );
+             for (column in 0 to columns - 1) {
                let cell = Screen.getCell(~row, ~column, screen);
 
                let bgColor = getBgColor(cell);
-               if (bgColor != defaultBackgroundColor) {
-                 Skia.Paint.setColor(backgroundPaint, bgColor);
-                 CanvasContext.drawRectLtwh(
-                   ~paint=backgroundPaint,
-                   ~left=float(column) *. characterWidth,
-                   ~top=yOffset,
-                   ~height=lineHeight,
-                   ~width=characterWidth,
-                   canvasContext,
-                 );
-               };
-             }};
+               let item = BackgroundColorAccumulator.{column, color: bgColor};
+               accumulator := Accumulator.add(item, accumulator^);
+             };
+             Accumulator.flush(accumulator^)};
 
           let buffer = Buffer.create(16);
 

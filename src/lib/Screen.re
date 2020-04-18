@@ -14,9 +14,12 @@ module Internal = {
     dirtyCells[idx] = true;
   };
 
-  let bumpDamageCounter = (model) => {
-    // UGLY MUTATION
-    {...model, damageCounter: model.damageCounter + 1};
+  let bumpDamageCounter = model => {
+    {
+      // UGLY MUTATION
+      ...model,
+      damageCounter: model.damageCounter + 1,
+    };
   };
 
   let getColor =
