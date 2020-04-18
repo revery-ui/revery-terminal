@@ -128,30 +128,32 @@ module TextAccumulator = {
     column: int,
     uchar: Uchar.t,
     color: Skia.Color.t,
-  }
+  };
 
-  let isValidUchar = (uchar) => {
+  let isValidUchar = uchar => {
     let codeInt = Uchar.to_int(uchar);
-    
+
     codeInt !== 0 && codeInt <= 0x10FFF;
-  }
-
-  let shouldMerge = (state: state, item: item) => switch(state) {
-  | None => true
-  | Some({color, _}) => color == item.color && isValidUchar(item.uchar)
   };
 
-  let merge: (state, item) => state = (state: state, item: item) => switch(state) {
-  | None when !isValidUchar(item.uchar) => None
-  | None =>
-  let buffer = Buffer.create(16);
-  Buffer.add_utf_8_uchar(buffer, item.uchar);
-  Some({startColumn: item.column, color: item.color,
-  buffer})
-  | Some({startColumn, buffer, color}) => 
-  Buffer.add_utf_8_uchar(buffer, item.uchar);
-  Some({startColumn, buffer, color});
-  };
+  let shouldMerge = (state: state, item: item) =>
+    switch (state) {
+    | None => true
+    | Some({color, _}) => color == item.color && isValidUchar(item.uchar)
+    };
+
+  let merge: (state, item) => state =
+    (state: state, item: item) =>
+      switch (state) {
+      | None when !isValidUchar(item.uchar) => None
+      | None =>
+        let buffer = Buffer.create(16);
+        Buffer.add_utf_8_uchar(buffer, item.uchar);
+        Some({startColumn: item.column, color: item.color, buffer});
+      | Some({startColumn, buffer, color}) =>
+        Buffer.add_utf_8_uchar(buffer, item.uchar);
+        Some({startColumn, buffer, color});
+      };
 
   let initialState = None;
 
@@ -160,14 +162,13 @@ module TextAccumulator = {
       state => {
         switch (state) {
         | None => ()
-        | Some(state) =>
-          draw(state.startColumn, state.buffer, state.color)
+        | Some(state) => draw(state.startColumn, state.buffer, state.color)
         };
       };
 
     Accumulator.create(~initialState, ~shouldMerge, ~merge, ~flush);
   };
-}
+};
 
 let%component make =
               (
@@ -303,34 +304,32 @@ let%component make =
           let buffer = Buffer.create(16);
 
           let renderText = (row, yOffset) =>
-            {
-            Skia.Paint.setTextEncoding(textPaint, Utf8);
-            let accumulator = ref(
-              TextAccumulator.create((startColumn, buffer, color) => {
-               prerr_endline (Printf.sprintf("Rendering at row: %d column: %d", row, startColumn));
-               Skia.Paint.setColor(textPaint, color);
-               let str = Buffer.contents(buffer);
-               CanvasContext.drawText(
-                 ~paint=textPaint,
-                 ~x=float(startColumn) *. characterWidth,
-                 ~y=yOffset +. characterHeight,
-                 ~text=str,
-                 canvasContext,
+            {Skia.Paint.setTextEncoding(textPaint, Utf8);
+             let accumulator =
+               ref(
+                 TextAccumulator.create((startColumn, buffer, color) => {
+                   Skia.Paint.setColor(textPaint, color);
+                   let str = Buffer.contents(buffer);
+                   CanvasContext.drawText(
+                     ~paint=textPaint,
+                     ~x=float(startColumn) *. characterWidth,
+                     ~y=yOffset +. characterHeight,
+                     ~text=str,
+                     canvasContext,
+                   );
+                 }),
                );
-  
-              })
-            );
 
-            for (column in 0 to columns - 1) {
+             for (column in 0 to columns - 1) {
                let cell = Screen.getCell(~row, ~column, screen);
 
                let fgColor = getFgColor(cell);
 
-               let item = TextAccumulator.{column, color: fgColor, uchar: cell.char};
+               let item =
+                 TextAccumulator.{column, color: fgColor, uchar: cell.char};
                accumulator := Accumulator.add(item, accumulator^);
-               }
-              Accumulator.flush(accumulator^);
              };
+             Accumulator.flush(accumulator^)};
 
           let perLineRenderer =
             ImmediateList.render(
