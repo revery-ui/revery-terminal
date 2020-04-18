@@ -70,7 +70,7 @@ module BackgroundColorAccumulator = {
         endColumn: item.column + 1,
         color: item.color,
       })
-    | Some({color, startColumn, endColumn}) =>
+    | Some({color, startColumn, _}) =>
       Some({startColumn, endColumn: item.column + 1, color})
     };
 
