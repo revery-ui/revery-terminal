@@ -30,7 +30,7 @@
     "revery": "0.29.0",
     "reason-libvterm": "github:revery-ui/reason-libvterm#91bad1f",
     "isolinear": "^3.0.0",
-    "@glennsl/timber": "1.0.0"
+    "@glennsl/timber": "^1.0.0"
   },
   "resolutions": {
     "revery": "revery-ui/revery#ced2dde",
