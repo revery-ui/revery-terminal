@@ -28,15 +28,15 @@
   },
   "dependencies": {
     "revery": "0.29.0",
-    "reason-libvterm": "github:revery-ui/reason-libvterm#91bad1f",
+    "reason-libvterm": "glennsl/reason-libvterm#ad3eb30",
     "isolinear": "^3.0.0",
-    "@glennsl/timber": "1.0.0"
+    "@glennsl/timber": "^1.2.0"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#ced2dde",
+    "revery": "glennsl/revery#7405191",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
-    "isolinear": "revery-ui/isolinear#b17ce17",
+    "isolinear": "glennsl/isolinear#c2065e0",
     "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755"
   },
   "scripts": {
@@ -44,8 +44,8 @@
    "run": "esy x App"
   },
   "devDependencies": {
-    "ocaml": "~4.8",
-    "@opam/dune": "*",
+    "ocaml": "~4.9.1",
+    "@opam/dune": "2.5.0",
     "@opam/merlin": "*",
     "esy-macdylibbundler": "*"
   }
