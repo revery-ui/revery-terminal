@@ -1,5 +1,5 @@
 {
-  "checksum": "58f88be14b17f96ebb5e94458f3623fd",
+  "checksum": "f564d99f34a43b45e151004da8025ab5",
   "root": "revery-terminal@link-dev:./package.json",
   "node": {
     "yarn-pkg-config@github:esy-ocaml/yarn-pkg-config#db3a0b63883606dd57c54a7158d560d6cba8cd79@d41d8cd9": {
@@ -58,9 +58,9 @@
       },
       "overrides": [],
       "dependencies": [
-        "revery@github:glennsl/revery#7405191@d41d8cd9",
-        "reason-libvterm@github:glennsl/reason-libvterm#ad3eb30@d41d8cd9",
-        "isolinear@github:glennsl/isolinear#c2065e0@d41d8cd9",
+        "revery@github:revery-ui/revery#18b5964@d41d8cd9",
+        "reason-libvterm@github:revery-ui/reason-libvterm#eec9bf9@d41d8cd9",
+        "isolinear@github:revery-ui/isolinear#8cad3b0@d41d8cd9",
         "@glennsl/timber@1.2.0@d41d8cd9"
       ],
       "devDependencies": [
@@ -68,13 +68,13 @@
         "@opam/merlin@opam:3.3.4@980b49f2", "@opam/dune@opam:2.5.0@aef1678b"
       ]
     },
-    "revery@github:glennsl/revery#7405191@d41d8cd9": {
-      "id": "revery@github:glennsl/revery#7405191@d41d8cd9",
+    "revery@github:revery-ui/revery#18b5964@d41d8cd9": {
+      "id": "revery@github:revery-ui/revery#18b5964@d41d8cd9",
       "name": "revery",
-      "version": "github:glennsl/revery#7405191",
+      "version": "github:revery-ui/revery#18b5964",
       "source": {
         "type": "install",
-        "source": [ "github:glennsl/revery#7405191" ]
+        "source": [ "github:revery-ui/revery#18b5964" ]
       },
       "overrides": [],
       "dependencies": [
@@ -190,13 +190,14 @@
       ],
       "devDependencies": [ "ocaml@4.9.1000@d41d8cd9" ]
     },
-    "reason-libvterm@github:glennsl/reason-libvterm#ad3eb30@d41d8cd9": {
-      "id": "reason-libvterm@github:glennsl/reason-libvterm#ad3eb30@d41d8cd9",
+    "reason-libvterm@github:revery-ui/reason-libvterm#eec9bf9@d41d8cd9": {
+      "id":
+        "reason-libvterm@github:revery-ui/reason-libvterm#eec9bf9@d41d8cd9",
       "name": "reason-libvterm",
-      "version": "github:glennsl/reason-libvterm#ad3eb30",
+      "version": "github:revery-ui/reason-libvterm#eec9bf9",
       "source": {
         "type": "install",
-        "source": [ "github:glennsl/reason-libvterm#ad3eb30" ]
+        "source": [ "github:revery-ui/reason-libvterm#eec9bf9" ]
       },
       "overrides": [],
       "dependencies": [
@@ -222,13 +223,13 @@
       "dependencies": [],
       "devDependencies": []
     },
-    "isolinear@github:glennsl/isolinear#c2065e0@d41d8cd9": {
-      "id": "isolinear@github:glennsl/isolinear#c2065e0@d41d8cd9",
+    "isolinear@github:revery-ui/isolinear#8cad3b0@d41d8cd9": {
+      "id": "isolinear@github:revery-ui/isolinear#8cad3b0@d41d8cd9",
       "name": "isolinear",
-      "version": "github:glennsl/isolinear#c2065e0",
+      "version": "github:revery-ui/isolinear#8cad3b0",
       "source": {
         "type": "install",
-        "source": [ "github:glennsl/isolinear#c2065e0" ]
+        "source": [ "github:revery-ui/isolinear#8cad3b0" ]
       },
       "overrides": [],
       "dependencies": [

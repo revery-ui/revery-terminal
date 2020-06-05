@@ -28,15 +28,15 @@
   },
   "dependencies": {
     "revery": "0.29.0",
-    "reason-libvterm": "glennsl/reason-libvterm#ad3eb30",
+    "reason-libvterm": "revery-ui/reason-libvterm#eec9bf9",
     "isolinear": "^3.0.0",
     "@glennsl/timber": "^1.2.0"
   },
   "resolutions": {
-    "revery": "glennsl/revery#7405191",
+    "revery": "revery-ui/revery#18b5964",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
-    "isolinear": "glennsl/isolinear#c2065e0",
+    "isolinear": "revery-ui/isolinear#8cad3b0",
     "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755"
   },
   "scripts": {
