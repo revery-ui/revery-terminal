@@ -33,7 +33,7 @@
     "@glennsl/timber": "^1.2.0"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#18b5964",
+    "revery": "revery-ui/revery#5912a7b",
     "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
     "@opam/cmdliner": "1.0.2",
     "isolinear": "revery-ui/isolinear#8cad3b0",

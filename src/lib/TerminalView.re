@@ -105,7 +105,7 @@ let%component make =
       }}>
       <Canvas
         style={Styles.container(bg)}
-        render={canvasContext => {
+        render={(canvasContext, _) => {
           let {
             font,
             lineHeight,
