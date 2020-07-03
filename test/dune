@@ -7,5 +7,6 @@
             rely.lib
             ReveryTerminal
             Lib_Test
+            reason-native-crash-utils.asan
             ))
 
