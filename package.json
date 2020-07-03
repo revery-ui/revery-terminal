@@ -31,7 +31,7 @@
     "isolinear": "^3.0.0",
     "@glennsl/timber": "^1.2.0",
     "@onivim/reason-native-crash-utils": "^1.0.0",
-    "@revery/esy-libvterm": "^1.0.2"
+    "@revery/esy-libvterm": "^1.0.3"
   },
   "resolutions": {
     "revery": "revery-ui/revery#5912a7b",

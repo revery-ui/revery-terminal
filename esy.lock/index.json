@@ -1,5 +1,5 @@
 {
-  "checksum": "eef9e3194e8c41b39122ace98c9e8007",
+  "checksum": "d76e295a67e61c7f1f7015829b3fdd12",
   "root": "revery-terminal@link-dev:./package.json",
   "node": {
     "yarn-pkg-config@github:esy-ocaml/yarn-pkg-config#db3a0b63883606dd57c54a7158d560d6cba8cd79@d41d8cd9": {
@@ -60,7 +60,7 @@
       "dependencies": [
         "revery@github:revery-ui/revery#5912a7b@d41d8cd9",
         "isolinear@github:revery-ui/isolinear#8cad3b0@d41d8cd9",
-        "@revery/esy-libvterm@1.0.2@d41d8cd9",
+        "@revery/esy-libvterm@1.0.3@d41d8cd9",
         "@onivim/reason-native-crash-utils@1.0.1@d41d8cd9",
         "@glennsl/timber@1.2.0@d41d8cd9"
       ],
@@ -329,13 +329,13 @@
       "dependencies": [ "esy-cmake@0.3.5@d41d8cd9" ],
       "devDependencies": []
     },
-    "esy-libtools@github:bryphe/esy-libtools#c9eb685@d41d8cd9": {
-      "id": "esy-libtools@github:bryphe/esy-libtools#c9eb685@d41d8cd9",
+    "esy-libtools@github:revery-ui/esy-libtools#c9eb685@d41d8cd9": {
+      "id": "esy-libtools@github:revery-ui/esy-libtools#c9eb685@d41d8cd9",
       "name": "esy-libtools",
-      "version": "github:bryphe/esy-libtools#c9eb685",
+      "version": "github:revery-ui/esy-libtools#c9eb685",
       "source": {
         "type": "install",
-        "source": [ "github:bryphe/esy-libtools#c9eb685" ]
+        "source": [ "github:revery-ui/esy-libtools#c9eb685" ]
       },
       "overrides": [],
       "dependencies": [
@@ -470,19 +470,19 @@
       ],
       "devDependencies": []
     },
-    "@revery/esy-libvterm@1.0.2@d41d8cd9": {
-      "id": "@revery/esy-libvterm@1.0.2@d41d8cd9",
+    "@revery/esy-libvterm@1.0.3@d41d8cd9": {
+      "id": "@revery/esy-libvterm@1.0.3@d41d8cd9",
       "name": "@revery/esy-libvterm",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "source": {
         "type": "install",
         "source": [
-          "archive:https://registry.npmjs.org/@revery/esy-libvterm/-/esy-libvterm-1.0.2.tgz#sha1:3f88614dfc1fd3d5b80a29c9eabffe7c814e064d"
+          "archive:https://registry.npmjs.org/@revery/esy-libvterm/-/esy-libvterm-1.0.3.tgz#sha1:85c1fec989379124c7f1fb0eb015ceeea2659bbe"
         ]
       },
       "overrides": [],
       "dependencies": [
-        "esy-libtools@github:bryphe/esy-libtools#c9eb685@d41d8cd9"
+        "esy-libtools@github:revery-ui/esy-libtools#c9eb685@d41d8cd9"
       ],
       "devDependencies": []
     },
