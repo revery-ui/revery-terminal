@@ -28,16 +28,14 @@
   },
   "dependencies": {
     "revery": "0.29.0",
-    "reason-libvterm": "revery-ui/reason-libvterm#eec9bf9",
     "isolinear": "^3.0.0",
-    "@glennsl/timber": "^1.2.0"
+    "@glennsl/timber": "^1.2.0",
+    "@onivim/reason-native-crash-utils": "^1.0.0",
+    "@revery/esy-libvterm": "^1.0.3"
   },
   "resolutions": {
     "revery": "revery-ui/revery#5912a7b",
-    "@esy-ocaml/libffi": "esy-ocaml/libffi#c61127d",
-    "@opam/cmdliner": "1.0.2",
-    "isolinear": "revery-ui/isolinear#8cad3b0",
-    "esy-cmake": "prometheansacrifice/esy-cmake#2a47392def755"
+    "isolinear": "revery-ui/isolinear#8cad3b0"
   },
   "scripts": {
    "format": "esy dune build @fmt --auto-promote",
@@ -47,6 +45,7 @@
     "ocaml": "~4.9.1",
     "@opam/dune": "2.5.0",
     "@opam/merlin": "*",
-    "esy-macdylibbundler": "*"
+    "esy-macdylibbundler": "*",
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#efedf8d6a"
   }
 }

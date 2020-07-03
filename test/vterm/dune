@@ -1,0 +1,9 @@
+(dirs bin)
+
+(library
+    (name VTerm_Test)
+    (public_name revery-terminal-test.vterm)
+    (flags (:standard (-w -39)))
+    (ocamlopt_flags -linkall -g)
+    (libraries rely.lib vterm reason-native-crash-utils.asan)
+)
