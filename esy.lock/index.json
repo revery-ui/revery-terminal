@@ -1,5 +1,5 @@
 {
-  "checksum": "e13bb4755d1b2777b352c0af476164a3",
+  "checksum": "eef9e3194e8c41b39122ace98c9e8007",
   "root": "revery-terminal@link-dev:./package.json",
   "node": {
     "yarn-pkg-config@github:esy-ocaml/yarn-pkg-config#db3a0b63883606dd57c54a7158d560d6cba8cd79@d41d8cd9": {
@@ -60,7 +60,7 @@
       "dependencies": [
         "revery@github:revery-ui/revery#5912a7b@d41d8cd9",
         "isolinear@github:revery-ui/isolinear#8cad3b0@d41d8cd9",
-        "esy-libvterm@github:revery-ui/esy-libvterm#6e8a15c@d41d8cd9",
+        "@revery/esy-libvterm@1.0.2@d41d8cd9",
         "@onivim/reason-native-crash-utils@1.0.1@d41d8cd9",
         "@glennsl/timber@1.2.0@d41d8cd9"
       ],
@@ -329,20 +329,6 @@
       "dependencies": [ "esy-cmake@0.3.5@d41d8cd9" ],
       "devDependencies": []
     },
-    "esy-libvterm@github:revery-ui/esy-libvterm#6e8a15c@d41d8cd9": {
-      "id": "esy-libvterm@github:revery-ui/esy-libvterm#6e8a15c@d41d8cd9",
-      "name": "esy-libvterm",
-      "version": "github:revery-ui/esy-libvterm#6e8a15c",
-      "source": {
-        "type": "install",
-        "source": [ "github:revery-ui/esy-libvterm#6e8a15c" ]
-      },
-      "overrides": [],
-      "dependencies": [
-        "esy-libtools@github:bryphe/esy-libtools#c9eb685@d41d8cd9"
-      ],
-      "devDependencies": []
-    },
     "esy-libtools@github:bryphe/esy-libtools#c9eb685@d41d8cd9": {
       "id": "esy-libtools@github:bryphe/esy-libtools#c9eb685@d41d8cd9",
       "name": "esy-libtools",
@@ -481,6 +467,22 @@
       "overrides": [],
       "dependencies": [
         "esy-help2man@github:esy-packages/esy-help2man#c8e6931d1dcf58a81bd801145a777fd3b115c443@d41d8cd9"
+      ],
+      "devDependencies": []
+    },
+    "@revery/esy-libvterm@1.0.2@d41d8cd9": {
+      "id": "@revery/esy-libvterm@1.0.2@d41d8cd9",
+      "name": "@revery/esy-libvterm",
+      "version": "1.0.2",
+      "source": {
+        "type": "install",
+        "source": [
+          "archive:https://registry.npmjs.org/@revery/esy-libvterm/-/esy-libvterm-1.0.2.tgz#sha1:3f88614dfc1fd3d5b80a29c9eabffe7c814e064d"
+        ]
+      },
+      "overrides": [],
+      "dependencies": [
+        "esy-libtools@github:bryphe/esy-libtools#c9eb685@d41d8cd9"
       ],
       "devDependencies": []
     },
