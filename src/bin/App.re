@@ -111,10 +111,11 @@ let init = app => {
   Revery.Window.startTextInput(window);
 
   // Load font, and dispatch on success
-  let fontPath =
-    Revery.Environment.executingDirectory ++ "JetBrainsMono-Medium.ttf";
+  let font =
+    Revery.Font.Family.fromFile("JetBrainsMono-Medium.ttf")
+    |> Revery.Font.Family.toSkia(Revery.Font.Weight.Normal);
 
-  switch (Revery.Font.load(fontPath)) {
+  switch (Revery.Font.load(font)) {
   | Ok(font) =>
     Store.dispatch(Model.FontLoaded(Font.make(~size=12.0, font)))
   | Error(msg) => failwith(msg)
