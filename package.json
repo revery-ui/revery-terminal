@@ -34,7 +34,7 @@
     "@revery/esy-libvterm": "^1.0.3"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#5912a7b",
+    "revery": "revery-ui/revery#7ccd20c",
     "isolinear": "revery-ui/isolinear#8cad3b0"
   },
   "scripts": {
@@ -42,8 +42,8 @@
    "run": "esy x App"
   },
   "devDependencies": {
-    "ocaml": "~4.9.1",
-    "@opam/dune": "2.5.0",
+    "ocaml": "~4.10",
+    "@opam/dune": ">=2.5.0",
     "@opam/merlin": "*",
     "esy-macdylibbundler": "*",
     "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#efedf8d6a"
