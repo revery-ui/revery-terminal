@@ -2,5 +2,5 @@
     (name ReveryTerminal)
     (public_name revery-terminal.lib)
     (preprocess (pps brisk-reconciler.ppx))
-    (libraries isolinear vterm Revery skia)
+    (libraries isolinear vterm Revery reason-skia)
 )
