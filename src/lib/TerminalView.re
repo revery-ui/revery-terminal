@@ -159,18 +159,29 @@ let%component make =
              Accumulator.flush(accumulator^)};
 
           let renderText = (row, yOffset) =>
-            {Skia.Paint.setTextEncoding(textPaint, Utf8);
+            {Skia.Paint.setTextEncoding(textPaint, GlyphId);
              let accumulator =
                ref(
                  TextAccumulator.create((startColumn, buffer, color) => {
                    Skia.Paint.setColor(textPaint, color);
                    let str = Buffer.contents(buffer);
-                   CanvasContext.drawText(
-                     ~paint=textPaint,
-                     ~x=float(startColumn) *. characterWidth,
-                     ~y=yOffset +. characterHeight,
-                     ~text=str,
-                     canvasContext,
+                   let tokens =
+                     str
+                     |> Revery.Font.shape(font)
+                     |> Revery.Font.ShapeResult.getGlyphStrings;
+                   List.iter(
+                     ((skiaFace, str)) => {
+                       Skia.Paint.setTypeface(textPaint, skiaFace);
+
+                       CanvasContext.drawText(
+                         ~paint=textPaint,
+                         ~x=float(startColumn) *. characterWidth,
+                         ~y=yOffset +. characterHeight,
+                         ~text=str,
+                         canvasContext,
+                       );
+                     },
+                     tokens,
                    );
                  }),
                );
