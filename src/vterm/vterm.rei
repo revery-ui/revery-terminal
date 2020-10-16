@@ -121,19 +121,15 @@ module Style: {
 module ScreenCell: {
   type t = {
     char: Uchar.t,
-    //width: int,
     fg: Color.raw,
     bg: Color.raw,
     // Attributes
     style: Style.t,
-    //    bold: int,
-    //    underline: int,
-    //    italic: int,
+    // TODO:
     //    blink: int,
     //    reverse: int,
     //    conceal: int,
     //    strike: int,
-    // TODO:
     //font: int,
     //dwl: int,
     //dhl: int,

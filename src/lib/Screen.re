@@ -114,7 +114,6 @@ let getForegroundColor =
     ) => {
   let getColor =
     Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
-  //let color = cell.reverse == 0 ? cell.fg : cell.bg;
   getColor(cell.fg);
 };
 
@@ -127,7 +126,6 @@ let getBackgroundColor =
     ) => {
   let getColor =
     Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
-  //let color = cell.reverse == 0 ? cell.bg : cell.fg;
   getColor(cell.bg);
 };
 
