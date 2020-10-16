@@ -37,8 +37,8 @@ let init = app => {
     Store.onPendingEffect(() => {Store.runPendingEffects()});
 
   // Set up some nice colorized logging
-//  Timber.App.enable();
-//  Timber.App.setLevel(Timber.Level.trace);
+  //  Timber.App.enable();
+  //  Timber.App.setLevel(Timber.Level.trace);
 
   // And enable record backtraces, to check for exceptions
   Printexc.record_backtrace(true);

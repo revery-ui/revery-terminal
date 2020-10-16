@@ -134,66 +134,45 @@ module Color = {
     | Rgb(r, g, b) => Printf.sprintf("rgb(%d, %d, %d)", r, g, b)
     | Index(idx) => Printf.sprintf("index(%d)", idx);
 
-  let unpack = (raw) => {
+  let unpack = raw => {
     let controlBit = raw land 3;
     switch (controlBit) {
     | 0 => DefaultBackground
     | 1 => DefaultForeground
-    | 2 => 
-        let r = (raw land (255 lsl 18)) lsr 18;
-        let g = (raw land (255 lsl 10)) lsr 10;
-        let b = (raw land (255 lsl 2)) lsr 2;
-        Rgb(r, g, b)
+    | 2 =>
+      let r = (raw land 255 lsl 18) lsr 18;
+      let g = (raw land 255 lsl 10) lsr 10;
+      let b = (raw land 255 lsl 2) lsr 2;
+      Rgb(r, g, b);
     | 3 =>
-        let idx = (raw land (255 lsl 2)) lsr 2;
-        Index(idx)
+      let idx = (raw land 255 lsl 2) lsr 2;
+      Index(idx);
     | _ => DefaultForeground
-    }
+    };
   };
 };
 
 module Style = {
-    type t = int;
+  type t = int;
 
-    let isBold = (_) => false;
-    let isUnderline = (_) => false;
-    let isItalic = (_) => false;
+  let isBold = v => v land 1 == 1;
+  let isItalic = v => v land 2 == 2;
+  let isUnderline = v => v land 4 == 4;
 };
 
 module ScreenCell = {
   type t = {
     char: Uchar.t,
-//    width: int,
     fg: Color.raw,
     bg: Color.raw,
-    // Attributes
     style: Style.t,
-//    bold: int,
-//    underline: int,
-//    italic: int,
-//    blink: int,
-//    reverse: int,
-//    conceal: int,
-//    strike: int,
-    // TODO:
-    //font: int,
-    //dwl: int,
-    //dhl: int,
   };
 
   let empty: t = {
     char: Uchar.of_int(0),
-//    width: 0,
     fg: Color.defaultForeground,
     bg: Color.defaultBackground,
     style: 0,
-//    bold: 0,
-//    underline: 0,
-//    italic: 0,
-//    blink: 0,
-//    reverse: 0,
-//    conceal: 0,
-//    strike: 0,
   };
 };
 
@@ -323,12 +302,10 @@ module Internal = {
     };
   };
 
-  let onScreenSbPushLine = (id: int, fullCount: int, cells: array(ScreenCell.t)) => {
+  let onScreenSbPushLine = (id: int, cells: array(ScreenCell.t)) => {
     switch (Hashtbl.find_opt(idToOutputCallback, id)) {
     | Some({onScreenScrollbackPushLine, _}) =>
-      let allCells = Array.make(fullCount, ScreenCell.empty);
-      Array.blit(cells, 0, allCells, 0, Array.length(cells));
-      onScreenScrollbackPushLine^(allCells)
+      onScreenScrollbackPushLine^(cells)
     | None => ()
     };
   };

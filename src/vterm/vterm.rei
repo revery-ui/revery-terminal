@@ -98,7 +98,7 @@ module TermProp: {
 
 module Color: {
   type raw;
-  
+
   type t =
     | DefaultForeground
     | DefaultBackground
@@ -111,12 +111,12 @@ module Color: {
 };
 
 module Style: {
-    type t;
-    
-    let isBold: t => bool;
-    let isUnderline: t => bool;
-    let isItalic: t => bool;
-}
+  type t;
+
+  let isBold: t => bool;
+  let isUnderline: t => bool;
+  let isItalic: t => bool;
+};
 
 module ScreenCell: {
   type t = {
@@ -126,13 +126,13 @@ module ScreenCell: {
     bg: Color.raw,
     // Attributes
     style: Style.t,
-//    bold: int,
-//    underline: int,
-//    italic: int,
-//    blink: int,
-//    reverse: int,
-//    conceal: int,
-//    strike: int,
+    //    bold: int,
+    //    underline: int,
+    //    italic: int,
+    //    blink: int,
+    //    reverse: int,
+    //    conceal: int,
+    //    strike: int,
     // TODO:
     //font: int,
     //dwl: int,

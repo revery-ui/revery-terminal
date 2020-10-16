@@ -13,36 +13,32 @@
 
 static value reason_libvterm_Val_color(VTermColor *pColor) {
 
-    // Colors are packed as follows:
-    // [ 8-bit red] [8-bit green] [8-bit blue / index] [2 control bits] (least significant bits)
-    // Bits 0 & 1 - determine type of color:
-    // - 0: Background
-    // - 1: Foreground
-    // - 2: RGB Color (24-bit)
-    // - 3: Index color (256 colors)
-    // Bits 2-9 - either the blue color, or the index
-    // Bits 10-17 - green color, if RGB
-    // Bits 18-25 - blue color, if RGB
-    int colorVal = 0;
+  // Colors are packed as follows:
+  // [ 8-bit red] [8-bit green] [8-bit blue / index] [2 control bits] (least
+  // significant bits) Bits 0 & 1 - determine type of color:
+  // - 0: Background
+  // - 1: Foreground
+  // - 2: RGB Color (24-bit)
+  // - 3: Index color (256 colors)
+  // Bits 2-9 - either the blue color, or the index
+  // Bits 10-17 - green color, if RGB
+  // Bits 18-25 - blue color, if RGB
+  int colorVal = 0;
   if (VTERM_COLOR_IS_DEFAULT_BG(pColor)) {
     colorVal = 0;
   } else if (VTERM_COLOR_IS_DEFAULT_FG(pColor)) {
     colorVal = 1;
   } else if (VTERM_COLOR_IS_RGB(pColor)) {
-    colorVal = 2
-    + (pColor->rgb.red << 18)
-    + (pColor->rgb.green << 10)
-    + (pColor->rgb.blue << 2);
+    colorVal = 2 + (pColor->rgb.red << 18) + (pColor->rgb.green << 10) +
+               (pColor->rgb.blue << 2);
   } else {
-    colorVal = 3 
-    + (pColor->indexed.idx << 2);
+    colorVal = 3 + (pColor->indexed.idx << 2);
   }
 
-    return Val_int(colorVal);
+  return Val_int(colorVal);
 }
 
-static value reason_libvterm_Val_screencell(
-                                            VTermScreenCell *pScreenCell) {
+static value reason_libvterm_Val_screencell(VTermScreenCell *pScreenCell) {
   CAMLparam0();
   CAMLlocal1(ret);
 
@@ -56,15 +52,14 @@ static value reason_libvterm_Val_screencell(
   value originalForeground = reason_libvterm_Val_color(&pScreenCell->fg);
   value originalBackground = reason_libvterm_Val_color(&pScreenCell->bg);
 
-  value fg = isReverse ? originalBackground : originalForeground; 
+  value fg = isReverse ? originalBackground : originalForeground;
   value bg = isReverse ? originalForeground : originalBackground;
 
   Store_field(ret, 1, fg);
   Store_field(ret, 2, bg);
-  int style = 0
-  + (pScreenCell->attrs.bold ? 1 : 0)
-  + (pScreenCell->attrs.italic ? 2 : 0)
-  + (pScreenCell->attrs.underline ? 4 : 0);
+  int style = 0 + (pScreenCell->attrs.bold ? 1 : 0) +
+              (pScreenCell->attrs.italic ? 2 : 0) +
+              (pScreenCell->attrs.underline ? 4 : 0);
 
   Store_field(ret, 3, Val_int(style));
   CAMLreturn(ret);
@@ -90,7 +85,7 @@ void reason_libvterm_onOutputF(const char *s, size_t len, void *user) {
 }
 
 int reason_libvterm_onScreenSetTermPropF(VTermProp prop, VTermValue *val,
-                                          void *user) {
+                                         void *user) {
   CAMLparam0();
   CAMLlocal2(ret, str);
 
@@ -218,19 +213,7 @@ int reason_libvterm_onScreenSbPushLineF(int cols, const VTermScreenCell *cells,
   CAMLparam0();
   CAMLlocal1(ret);
 
-  // Figure out which column has a non-empty character
-  int lastRealCharacter = cols - 1;
-  for (int revI = cols - 1; revI >= 0; revI--) {
-    if (cells[revI].chars[0] == 0) {
-        break;
-    } else {
-        lastRealCharacter = revI;
-    }
-  }
-
-  ret = caml_alloc(lastRealCharacter, 0);
-
-  for (int i = 0; i < lastRealCharacter; i++) {
+  for (int i = 0; i < cols; i++) {
     Store_field(ret, i, reason_libvterm_Val_screencell(&cells[i]));
   }
 
@@ -241,7 +224,7 @@ int reason_libvterm_onScreenSbPushLineF(int cols, const VTermScreenCell *cells,
         (value *)caml_named_value("reason_libvterm_onScreenSbPushLine");
   }
 
-  caml_callback3(*reason_libvterm_onScreenSbPushLine, Val_int(user), Val_int(cols), ret);
+  caml_callback2(*reason_libvterm_onScreenSbPushLine, Val_int(user), ret);
 
   CAMLreturn(0);
 }
@@ -409,7 +392,7 @@ CAMLprim value reason_libvterm_vterm_keyboard_unichar(value vTerm, value vChar,
 }
 
 CAMLprim value reason_libvterm_vterm_keyboard_key(value vTerm, value vKey,
-                                                      value vMod) {
+                                                  value vMod) {
   CAMLparam3(vTerm, vKey, vMod);
 
   VTerm *pTerm = (VTerm *)vTerm;
@@ -437,7 +420,7 @@ CAMLprim value reason_libvterm_vterm_new(value vId, value vRows, value vCol) {
   int rows = Int_val(vRows);
   int cols = Int_val(vCol);
   VTerm *pTerm = vterm_new(rows, cols);
-  //vterm_set_utf8(pTerm, true);
+  // vterm_set_utf8(pTerm, true);
   vterm_output_set_callback(pTerm, &reason_libvterm_onOutputF, id);
   VTermScreen *pScreen = vterm_obtain_screen(pTerm);
   vterm_screen_set_callbacks(pScreen, &reason_libvterm_screen_callbacks, id);
