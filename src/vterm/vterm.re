@@ -1,7 +1,5 @@
 type terminal;
 
-type screen;
-
 type modifier =
   | None
   | Shift
@@ -264,7 +262,6 @@ module Internal = {
 
   let onScreenMoveRect =
       (
-        id: int,
         id: int,
         destStartRow: int,
         destStartCol: int,

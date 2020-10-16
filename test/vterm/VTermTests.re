@@ -1,8 +1,8 @@
 open Vterm;
 open TestFramework;
 
-describe("VTerm", ({describe, test}) => {
-  test("make", ({expect}) => {
+describe("VTerm", ({describe, test, _}) => {
+  test("make", ({expect, _}) => {
     let isFinalized = ref(false);
     let vterm = make(~rows=20, ~cols=20);
 
@@ -11,14 +11,14 @@ describe("VTerm", ({describe, test}) => {
 
     expect.equal(isFinalized^, true);
   });
-  test("utf8", ({expect}) => {
+  test("utf8", ({expect, _}) => {
     let vterm = make(~rows=20, ~cols=20);
     setUtf8(~utf8=true, vterm);
     expect.equal(getUtf8(vterm), true);
     setUtf8(~utf8=false, vterm);
     expect.equal(getUtf8(vterm), false);
   });
-  test("size", ({expect}) => {
+  test("size", ({expect, _}) => {
     let vterm = make(~rows=20, ~cols=30);
     let {rows, cols} = getSize(vterm);
     expect.equal(rows, 20);
@@ -30,21 +30,21 @@ describe("VTerm", ({describe, test}) => {
     expect.equal(cols, 15);
   });
   describe("screen", ({test, _}) => {
-    test("gets empty cell", ({expect}) => {
+    test("gets empty cell", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
       let cell = Screen.getCell(~row=0, ~col=0, vterm);
       expect.equal(cell.char |> Uchar.to_char, Char.chr(0));
     });
-    test("gets non-empty cell", ({expect}) => {
+    test("gets non-empty cell", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
       let _: int = write(~input=String.make(1, 'a'), vterm);
       let cell = Screen.getCell(~row=0, ~col=0, vterm);
       expect.equal(cell.char |> Uchar.to_char, 'a');
     });
   });
-  describe("input", ({test, describe}) => {
+  describe("input", ({test, describe, _}) => {
     describe("unicode", ({test, _}) => {
-      test("replacement character round-trips", ({expect}) => {
+      test("replacement character round-trips", ({expect, _}) => {
         let vterm = make(~rows=20, ~cols=30);
         Vterm.setUtf8(~utf8=true, vterm);
 
@@ -64,7 +64,7 @@ describe("VTerm", ({describe, test}) => {
       })
     });
     describe("TermProps", ({test, _}) => {
-      test("title term prop is set", ({expect}) => {
+      test("title term prop is set", ({expect, _}) => {
         let vterm = make(~rows=20, ~cols=30);
 
         let title = ref("");
@@ -81,7 +81,7 @@ describe("VTerm", ({describe, test}) => {
 
         expect.equal(title^, "abc");
       });
-      test("icon term prop is set", ({expect}) => {
+      test("icon term prop is set", ({expect, _}) => {
         let vterm = make(~rows=20, ~cols=30);
 
         let icon = ref("");
@@ -99,14 +99,14 @@ describe("VTerm", ({describe, test}) => {
         expect.equal(icon^, "icon");
       });
     });
-    test("returns value", ({expect}) => {
+    test("returns value", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
 
       let res = write(~input="abc", vterm);
       expect.equal(res, 3);
     });
 
-    test("beeps", ({expect}) => {
+    test("beeps", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
 
       let gotBell = ref(false);
@@ -114,7 +114,7 @@ describe("VTerm", ({describe, test}) => {
       let _: int = write(~input=String.make(1, Char.chr(7)), vterm);
       expect.equal(true, gotBell^);
     });
-    test("resize", ({expect}) => {
+    test("resize", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
 
       let getRows = ref(0);
@@ -132,7 +132,7 @@ describe("VTerm", ({describe, test}) => {
       expect.equal(getCols^, 6);
     });
 
-    test("damage", ({expect}) => {
+    test("damage", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
 
       let damageCount = ref(0);
@@ -145,7 +145,7 @@ describe("VTerm", ({describe, test}) => {
       let _: int = write(~input="b", vterm);
       expect.equal(damageCount^, 2);
     });
-    test("regression test: corruption with GC", ({expect}) => {
+    test("regression test: corruption with GC", ({expect, _}) => {
       let size = 25;
       // This reproduces an issue where we had grabbed a char* pointer
       // in the C binding, but during the course of operation, when the GC
@@ -170,7 +170,7 @@ describe("VTerm", ({describe, test}) => {
   });
   describe("output", ({test, _}) => {
     let str = i => i |> Char.chr |> String.make(1);
-    test("Unicode character", ({expect}) => {
+    test("Unicode character", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
 
       let output = ref([]);
@@ -178,7 +178,7 @@ describe("VTerm", ({describe, test}) => {
       let () = Keyboard.input(vterm, Unicode(Uchar.of_int(65)), None);
       expect.equal(["A"], output^);
     });
-    test("Enter character", ({expect}) => {
+    test("Enter character", ({expect, _}) => {
       let vterm = make(~rows=20, ~cols=30);
 
       let output = ref([]);
