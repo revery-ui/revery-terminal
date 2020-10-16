@@ -66,7 +66,8 @@ module TermProp: {
     type t =
       | Block
       | Underline
-      | BarLeft;
+      | BarLeft
+      | Unknown;
 
     let toString: t => string;
   };
@@ -96,30 +97,39 @@ module TermProp: {
 };
 
 module Color: {
+  type raw;
+
   type t =
     | DefaultForeground
     | DefaultBackground
     | Rgb(int, int, int)
     | Index(int);
 
+  let unpack: raw => t;
+
   let toString: t => string;
+};
+
+module Style: {
+  type t;
+
+  let isBold: t => bool;
+  let isUnderline: t => bool;
+  let isItalic: t => bool;
 };
 
 module ScreenCell: {
   type t = {
     char: Uchar.t,
-    width: int,
-    fg: Color.t,
-    bg: Color.t,
+    fg: Color.raw,
+    bg: Color.raw,
     // Attributes
-    bold: int,
-    underline: int,
-    italic: int,
-    blink: int,
-    reverse: int,
-    conceal: int,
-    strike: int,
+    style: Style.t,
     // TODO:
+    //    blink: int,
+    //    reverse: int,
+    //    conceal: int,
+    //    strike: int,
     //font: int,
     //dwl: int,
     //dhl: int,

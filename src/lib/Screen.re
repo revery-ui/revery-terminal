@@ -23,10 +23,11 @@ module Internal = {
   };
 
   let getColor =
-      (~theme, ~defaultBackground, ~defaultForeground, color: Vterm.Color.t) => {
+      (~theme, ~defaultBackground, ~defaultForeground, color: Vterm.Color.raw) => {
     let bg = defaultBackground |> Option.value(~default=theme(0));
     let fg = defaultForeground |> Option.value(~default=theme(15));
 
+    let color = color |> Vterm.Color.unpack;
     switch (color) {
     | DefaultBackground => bg
     | DefaultForeground => fg
@@ -113,8 +114,7 @@ let getForegroundColor =
     ) => {
   let getColor =
     Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
-  let color = cell.reverse == 0 ? cell.fg : cell.bg;
-  getColor(color);
+  getColor(cell.fg);
 };
 
 let getBackgroundColor =
@@ -126,8 +126,7 @@ let getBackgroundColor =
     ) => {
   let getColor =
     Internal.getColor(~defaultBackground, ~defaultForeground, ~theme);
-  let color = cell.reverse == 0 ? cell.bg : cell.fg;
-  getColor(color);
+  getColor(cell.bg);
 };
 
 let make = (~vterm: Vterm.t, ~scrollBackSize, ~rows, ~columns) => {

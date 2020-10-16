@@ -59,7 +59,7 @@ module BackgroundColorAccumulator = {
   let shouldMerge = (state, item) =>
     switch (state) {
     | None => true
-    | Some(({color, _}: cells)) => color == item.color
+    | Some({color, _}: cells) => color == item.color
     };
 
   let merge = (state: state, item: item) =>

@@ -1,7 +1,5 @@
 type terminal;
 
-type screen;
-
 type modifier =
   | None
   | Shift
@@ -64,13 +62,15 @@ module TermProp = {
     type t =
       | Block
       | Underline
-      | BarLeft;
+      | BarLeft
+      | Unknown;
 
     let toString =
       fun
       | Block => "Block"
       | Underline => "Underline"
-      | BarLeft => "BarLeft";
+      | BarLeft => "BarLeft"
+      | Unknown => "Unknown";
   };
 
   module Mouse = {
@@ -114,11 +114,16 @@ module TermProp = {
 };
 
 module Color = {
+  type raw = int;
+
   type t =
     | DefaultForeground
     | DefaultBackground
     | Rgb(int, int, int)
     | Index(int);
+
+  let defaultForeground = 1024;
+  let defaultBackground = 1025;
 
   let toString =
     fun
@@ -126,40 +131,46 @@ module Color = {
     | DefaultBackground => "DefaultBackground"
     | Rgb(r, g, b) => Printf.sprintf("rgb(%d, %d, %d)", r, g, b)
     | Index(idx) => Printf.sprintf("index(%d)", idx);
+
+  let unpack = raw => {
+    let controlBit = raw land 3;
+    switch (controlBit) {
+    | 0 => DefaultBackground
+    | 1 => DefaultForeground
+    | 2 =>
+      let r = (raw land 255 lsl 18) lsr 18;
+      let g = (raw land 255 lsl 10) lsr 10;
+      let b = (raw land 255 lsl 2) lsr 2;
+      Rgb(r, g, b);
+    | 3 =>
+      let idx = (raw land 255 lsl 2) lsr 2;
+      Index(idx);
+    | _ => DefaultForeground
+    };
+  };
+};
+
+module Style = {
+  type t = int;
+
+  let isBold = v => v land 1 == 1;
+  let isItalic = v => v land 2 == 2;
+  let isUnderline = v => v land 4 == 4;
 };
 
 module ScreenCell = {
   type t = {
     char: Uchar.t,
-    width: int,
-    fg: Color.t,
-    bg: Color.t,
-    // Attributes
-    bold: int,
-    underline: int,
-    italic: int,
-    blink: int,
-    reverse: int,
-    conceal: int,
-    strike: int,
-    // TODO:
-    //font: int,
-    //dwl: int,
-    //dhl: int,
+    fg: Color.raw,
+    bg: Color.raw,
+    style: Style.t,
   };
 
   let empty: t = {
     char: Uchar.of_int(0),
-    width: 0,
-    fg: Color.DefaultForeground,
-    bg: Color.DefaultBackground,
-    bold: 0,
-    underline: 0,
-    italic: 0,
-    blink: 0,
-    reverse: 0,
-    conceal: 0,
-    strike: 0,
+    fg: Color.defaultForeground,
+    bg: Color.defaultBackground,
+    style: 0,
   };
 };
 
@@ -251,7 +262,6 @@ module Internal = {
 
   let onScreenMoveRect =
       (
-        id: int,
         id: int,
         destStartRow: int,
         destStartCol: int,
