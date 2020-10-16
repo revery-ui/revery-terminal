@@ -92,6 +92,7 @@ let input: (~modifier: Vterm.modifier=?, ~key: Vterm.key, t) => unit;
 let resize: (~rows: int, ~columns: int, t) => unit;
 
 let screen: t => Screen.t;
+let cursor: t => Cursor.t;
 
 let render:
   (

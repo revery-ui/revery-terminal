@@ -95,7 +95,8 @@ let updater = (model, msg) => {
       {...model, cursor},
       Isolinear.Effect.none,
     )
-  | Terminal(ReveryTerminal.TermPropChanged(prop)) => (
+  | Terminal(ReveryTerminal.TermPropChanged(prop)) => 
+   (
       model,
       termPropEffect(prop),
     )

@@ -12,27 +12,33 @@
 #include <vterm.h>
 
 static value reason_libvterm_Val_color(VTermColor *pColor) {
-  CAMLparam0();
-  CAMLlocal1(ret);
 
-  int tag;
-
-  if (VTERM_COLOR_IS_DEFAULT_FG(pColor)) {
-    ret = Int_val(0);
-  } else if (VTERM_COLOR_IS_DEFAULT_BG(pColor)) {
-    ret = Int_val(1);
-  }
-  if (VTERM_COLOR_IS_RGB(pColor)) {
-    ret = caml_alloc(3, 0);
-    Store_field(ret, 0, Val_int(pColor->rgb.red));
-    Store_field(ret, 1, Val_int(pColor->rgb.green));
-    Store_field(ret, 2, Val_int(pColor->rgb.blue));
+    // Colors are packed as follows:
+    // [ 8-bit red] [8-bit green] [8-bit blue / index] [2 control bits] (least significant bits)
+    // Bits 0 & 1 - determine type of color:
+    // - 0: Background
+    // - 1: Foreground
+    // - 2: RGB Color (24-bit)
+    // - 3: Index color (256 colors)
+    // Bits 2-9 - either the blue color, or the index
+    // Bits 10-17 - green color, if RGB
+    // Bits 18-25 - blue color, if RGB
+    int colorVal = 0;
+  if (VTERM_COLOR_IS_DEFAULT_BG(pColor)) {
+    colorVal = 0;
+  } else if (VTERM_COLOR_IS_DEFAULT_FG(pColor)) {
+    colorVal = 1;
+  } else if (VTERM_COLOR_IS_RGB(pColor)) {
+    colorVal = 2
+    + (pColor->rgb.red << 18)
+    + (pColor->rgb.green << 10)
+    + (pColor->rgb.blue << 2);
   } else {
-    ret = caml_alloc(1, 1);
-    Store_field(ret, 0, Val_int(pColor->indexed.idx));
+    colorVal = 3 
+    + (pColor->indexed.idx << 2);
   }
 
-  CAMLreturn(ret);
+    return Val_int(colorVal);
 }
 
 static value reason_libvterm_Val_screencell(
@@ -42,19 +48,25 @@ static value reason_libvterm_Val_screencell(
 
   uint32_t c = pScreenCell->chars[0];
 
-  ret = caml_alloc(11, 0);
+  ret = caml_alloc(4, 0);
   Store_field(ret, 0, Val_int(c));
-  Store_field(ret, 1, Val_int(pScreenCell->width));
-  Store_field(ret, 2, reason_libvterm_Val_color(&pScreenCell->fg));
-  Store_field(ret, 3, reason_libvterm_Val_color(&pScreenCell->bg));
-  Store_field(ret, 4, Val_int(pScreenCell->attrs.bold));
-  Store_field(ret, 5, Val_int(pScreenCell->attrs.underline));
-  Store_field(ret, 6, Val_int(pScreenCell->attrs.italic));
-  Store_field(ret, 7, Val_int(pScreenCell->attrs.blink));
-  Store_field(ret, 8, Val_int(pScreenCell->attrs.reverse));
-  Store_field(ret, 9, Val_int(pScreenCell->attrs.conceal));
-  Store_field(ret, 10, Val_int(pScreenCell->attrs.strike));
 
+  int isReverse = pScreenCell->attrs.reverse;
+
+  value originalForeground = reason_libvterm_Val_color(&pScreenCell->fg);
+  value originalBackground = reason_libvterm_Val_color(&pScreenCell->bg);
+
+  value fg = isReverse ? originalBackground : originalForeground; 
+  value bg = isReverse ? originalForeground : originalBackground;
+
+  Store_field(ret, 1, fg);
+  Store_field(ret, 2, bg);
+  int style = 0
+  + (pScreenCell->attrs.bold ? 1 : 0)
+  + (pScreenCell->attrs.italic ? 2 : 0)
+  + (pScreenCell->attrs.underline ? 4 : 0);
+
+  Store_field(ret, 3, Val_int(style));
   CAMLreturn(ret);
 }
 
@@ -206,9 +218,19 @@ int reason_libvterm_onScreenSbPushLineF(int cols, const VTermScreenCell *cells,
   CAMLparam0();
   CAMLlocal1(ret);
 
-  ret = caml_alloc(cols, 0);
+  // Figure out which column has a non-empty character
+  int lastRealCharacter = cols - 1;
+  for (int revI = cols - 1; revI >= 0; revI--) {
+    if (cells[revI].chars[0] == 0) {
+        break;
+    } else {
+        lastRealCharacter = revI;
+    }
+  }
 
-  for (int i = 0; i < cols; i++) {
+  ret = caml_alloc(lastRealCharacter, 0);
+
+  for (int i = 0; i < lastRealCharacter; i++) {
     Store_field(ret, i, reason_libvterm_Val_screencell(&cells[i]));
   }
 
@@ -219,7 +241,7 @@ int reason_libvterm_onScreenSbPushLineF(int cols, const VTermScreenCell *cells,
         (value *)caml_named_value("reason_libvterm_onScreenSbPushLine");
   }
 
-  caml_callback2(*reason_libvterm_onScreenSbPushLine, Val_int(user), ret);
+  caml_callback3(*reason_libvterm_onScreenSbPushLine, Val_int(user), Val_int(cols), ret);
 
   CAMLreturn(0);
 }
@@ -472,7 +494,7 @@ CAMLprim value reason_libvterm_vterm_input_write(value vTerm, value vStr) {
   CAMLparam2(vTerm, vStr);
   VTerm *pTerm = (VTerm *)vTerm;
   int len = caml_string_length(vStr);
-  char *bytes = strdup(String_val(vStr));
+  char *bytes = caml_stat_strdup(String_val(vStr));
   int ret = vterm_input_write(pTerm, bytes, len);
   free(bytes);
   CAMLreturn(Val_int(ret));

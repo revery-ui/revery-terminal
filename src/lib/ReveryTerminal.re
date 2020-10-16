@@ -117,6 +117,7 @@ let input = (~modifier=Vterm.None, ~key: Vterm.key, {vterm, _}) => {
   Vterm.Keyboard.input(vterm, key, modifier);
 };
 
+let cursor = ({cursor, _}) => cursor^;
 let screen = ({screen, _}) => screen^;
 
 let render =
