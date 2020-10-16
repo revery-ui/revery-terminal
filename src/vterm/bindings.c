@@ -213,6 +213,8 @@ int reason_libvterm_onScreenSbPushLineF(int cols, const VTermScreenCell *cells,
   CAMLparam0();
   CAMLlocal1(ret);
 
+  ret = caml_alloc(cols, 0);
+
   for (int i = 0; i < cols; i++) {
     Store_field(ret, i, reason_libvterm_Val_screencell(&cells[i]));
   }
