@@ -42,7 +42,7 @@
    "run": "esy x App"
   },
   "devDependencies": {
-    "ocaml": "~4.10",
+    "ocaml": "4.10.0",
     "@opam/dune": ">=2.5.0",
     "@opam/merlin": "*",
     "esy-macdylibbundler": "*",
