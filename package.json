@@ -34,7 +34,7 @@
     "@revery/esy-libvterm": "^1.0.3"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#7ccd20c",
+    "revery": "revery-ui/revery#bcae357",
     "isolinear": "revery-ui/isolinear#8cad3b0"
   },
   "scripts": {
