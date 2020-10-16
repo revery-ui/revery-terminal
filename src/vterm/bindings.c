@@ -11,7 +11,7 @@
 
 #include <vterm.h>
 
-static value reason_libvterm_Val_color(VTermColor *pColor) {
+static value reason_libvterm_Val_color(const VTermColor *pColor) {
 
   // Colors are packed as follows:
   // [ 8-bit red] [8-bit green] [8-bit blue / index] [2 control bits] (least
@@ -38,7 +38,7 @@ static value reason_libvterm_Val_color(VTermColor *pColor) {
   return Val_int(colorVal);
 }
 
-static value reason_libvterm_Val_screencell(VTermScreenCell *pScreenCell) {
+static value reason_libvterm_Val_screencell(const VTermScreenCell *pScreenCell) {
   CAMLparam0();
   CAMLlocal1(ret);
 
@@ -77,7 +77,7 @@ void reason_libvterm_onOutputF(const char *s, size_t len, void *user) {
   }
 
   ret = caml_alloc_string(len);
-  memcpy(String_val(ret), s, len);
+  memcpy((char*)String_val(ret), s, len);
 
   caml_callback2(*reason_libvterm_onOutput, Val_int(user), ret);
 
@@ -418,7 +418,11 @@ static VTermScreenCallbacks reason_libvterm_screen_callbacks = {
 
 CAMLprim value reason_libvterm_vterm_new(value vId, value vRows, value vCol) {
   CAMLparam3(vId, vRows, vCol);
-  void *id = (void *)Int_val(vId);
+
+  // Store the id of the terminal in the user data we pass to libvterm..
+  // Some coercion gymnatics to convert from Int -> void *
+  void *id = (void *)(uintptr_t)Int_val(vId);
+
   int rows = Int_val(vRows);
   int cols = Int_val(vCol);
   VTerm *pTerm = vterm_new(rows, cols);

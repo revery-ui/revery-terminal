@@ -12,7 +12,7 @@ type t = {
 
 let initial: t = {
   screen: Screen.initial,
-  cursor: Cursor.{visible: false, row: 0, column: 0},
+  cursor: Cursor.initial,
   font: None,
   pixelWidth: 1,
   pixelHeight: 1,

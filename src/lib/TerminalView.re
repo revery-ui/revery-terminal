@@ -215,14 +215,25 @@ let%component make =
               |> Option.value(~default=theme(15))
               |> Revery.Color.toSkia;
 
+            let (yOffset, width, height) =
+              switch (cursor.shape) {
+              | BarLeft => (0., 2., lineHeight)
+              | Underline => (lineHeight -. 2., characterWidth, 2.)
+              | Unknown
+              | Block => (0., characterWidth, lineHeight)
+              };
+
             Skia.Paint.setColor(textPaint, cursorColor);
             CanvasContext.drawRectLtwh(
               ~paint=textPaint,
               ~left=float(cursor.column) *. characterWidth,
               ~top=
-                float(scrollBackRows + cursor.row) *. lineHeight -. scrollY,
-              ~width=characterWidth,
-              ~height=lineHeight,
+                yOffset
+                +. float(scrollBackRows + cursor.row)
+                *. lineHeight
+                -. scrollY,
+              ~width,
+              ~height,
               canvasContext,
             );
           };

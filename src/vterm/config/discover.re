@@ -31,7 +31,7 @@ let () = {
 
   let cflags =
     switch (get_os) {
-    | _ => ["-I" ++ Sys.getenv("LIBVTERM_INCLUDE_PATH")]
+    | _ => ["-Wall", "-Werror", "-I" ++ Sys.getenv("LIBVTERM_INCLUDE_PATH")]
     };
 
   let libs =

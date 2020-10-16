@@ -39,7 +39,12 @@ let make =
     ~onMoveCursor=
       (newPos, _oldPos, _visible) => {
         let newCursor =
-          Cursor.{row: newPos.row, column: newPos.col, visible: true};
+          Cursor.{
+            ...cursor^,
+            row: newPos.row,
+            column: newPos.col,
+            visible: true,
+          };
         dispatch(CursorMoved(newCursor));
         cursor := newCursor;
       },
@@ -88,7 +93,15 @@ let make =
   );
 
   Vterm.Screen.setTermPropCallback(
-    ~onSetTermProp=prop => {dispatch(TermPropChanged(prop))},
+    ~onSetTermProp=
+      prop => {
+        switch (prop) {
+        | Vterm.TermProp.CursorShape(shape) =>
+          cursor := Cursor.{...cursor^, shape}
+        | _ => ()
+        };
+        dispatch(TermPropChanged(prop));
+      },
     vterm,
   );
 

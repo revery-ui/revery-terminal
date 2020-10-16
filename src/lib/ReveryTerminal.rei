@@ -5,7 +5,10 @@ module Cursor: {
     row: int,
     column: int,
     visible: bool,
+    shape: Vterm.TermProp.CursorShape.t,
   };
+
+  let initial: t;
 };
 
 module Theme: {
@@ -87,8 +90,13 @@ let make:
   ) =>
   t;
 
+// Write process output (ie, stdout)
 let write: (~input: string, t) => unit;
+
+// Send an input key to the terminal.
+// This will trigger the `Output` effect
 let input: (~modifier: Vterm.modifier=?, ~key: Vterm.key, t) => unit;
+
 let resize: (~rows: int, ~columns: int, t) => unit;
 
 let screen: t => Screen.t;
