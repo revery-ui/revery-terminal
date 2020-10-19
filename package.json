@@ -29,12 +29,12 @@
   "dependencies": {
     "revery": "0.29.0",
     "isolinear": "^3.0.0",
-    "@glennsl/timber": "^1.2.0",
+    "@revery/timber": "^2.0.0",
     "@onivim/reason-native-crash-utils": "^1.0.0",
     "@revery/esy-libvterm": "^1.0.3"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#bcae357",
+    "revery": "revery-ui/revery#b43852b",
     "isolinear": "revery-ui/isolinear#8cad3b0"
   },
   "scripts": {
