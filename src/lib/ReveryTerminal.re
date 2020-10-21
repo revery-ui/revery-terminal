@@ -135,6 +135,7 @@ let screen = ({screen, _}) => screen^;
 
 let render =
     (
+      ~opacity=?,
       ~defaultForeground=?,
       ~defaultBackground=?,
       ~scrollBarBackground=?,
@@ -146,6 +147,7 @@ let render =
       screen,
     ) =>
   <TerminalView
+    ?opacity
     ?defaultForeground
     ?defaultBackground
     ?scrollBarBackground

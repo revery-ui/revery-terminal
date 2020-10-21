@@ -104,6 +104,7 @@ let cursor: t => Cursor.t;
 
 let render:
   (
+    ~opacity: float=?,
     ~defaultForeground: Revery.Color.t=?,
     ~defaultBackground: Revery.Color.t=?,
     ~scrollBarBackground: Revery.Color.t=?,

@@ -6,20 +6,25 @@ open Revery.UI;
 open Accumulator;
 
 module Styles = {
-  let container = bg =>
-    Style.[
-      backgroundColor(bg),
-      position(`Absolute),
-      justifyContent(`Center),
-      alignItems(`Center),
-      bottom(0),
-      top(0),
-      left(0),
-      right(0),
-    ];
+  open Style;
+  let container = bg => [
+    backgroundColor(bg),
+    position(`Absolute),
+    justifyContent(`Center),
+    alignItems(`Center),
+    bottom(0),
+    top(0),
+    left(0),
+    right(0),
+  ];
 
-  let scrollBarContainer =
-    Style.[position(`Absolute), bottom(0), top(0), right(0)];
+  let scrollBarContainer = (~opacity as opac) => [
+    position(`Absolute),
+    bottom(0),
+    top(0),
+    right(0),
+    opacity(opac),
+  ];
 };
 
 type terminalSize = {
@@ -31,6 +36,7 @@ let%component make =
               (
                 ~defaultBackground=?,
                 ~defaultForeground=?,
+                ~opacity=1.0,
                 ~scrollBarBackground=Colors.black,
                 ~scrollBarThumb=Colors.darkGray,
                 ~scrollBarThickness=8,
@@ -137,6 +143,7 @@ let%component make =
                    (startColumn, endColumn, color) =>
                    if (color !== defaultBackgroundColor) {
                      Skia.Paint.setColor(backgroundPaint, color);
+                     Skia.Paint.setAlpha(backgroundPaint, opacity);
                      CanvasContext.drawRectLtwh(
                        ~paint=backgroundPaint,
                        ~left=float(startColumn) *. characterWidth,
@@ -164,6 +171,7 @@ let%component make =
                ref(
                  TextAccumulator.create((startColumn, buffer, color) => {
                    Skia.Paint.setColor(textPaint, color);
+                   Skia.Paint.setAlpha(textPaint, opacity);
                    let str = Buffer.contents(buffer);
                    let tokens =
                      str
@@ -224,6 +232,7 @@ let%component make =
               };
 
             Skia.Paint.setColor(textPaint, cursorColor);
+            Skia.Paint.setAlpha(textPaint, opacity);
             CanvasContext.drawRectLtwh(
               ~paint=textPaint,
               ~left=float(cursor.column) *. characterWidth,
@@ -239,7 +248,7 @@ let%component make =
           };
         }}
       />
-      <View style=Styles.scrollBarContainer>
+      <View style={Styles.scrollBarContainer(~opacity)}>
         <TerminalScrollBarView
           onScroll
           height={size.height}
