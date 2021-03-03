@@ -4,7 +4,7 @@
   "description": "Terminal emulator built with Revery",
   "license": "MIT",
   "esy": {
-    "build": "refmterr dune build -p revery-terminal",
+    "build": "dune build -p revery-terminal",
     "install": [
       "esy-installer revery-terminal.install"
     ]
