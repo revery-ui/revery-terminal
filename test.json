@@ -1,16 +1,18 @@
 {
-  "source": "./package.json",
-  "scripts": {
-    "run": "esy '@test' x ReveryTerminalTestRunner"
-  },
-  "override": {
-      "build": ["dune build -p revery-terminal,revery-terminal-test -j4"],
-      "dependencies": {
-          "@reason-native/rely": "2.2.0"
-      },
-      "install": [
-          "esy-installer revery-terminal.install",
-          "esy-installer revery-terminal-test.install"
-      ]
-  }
+    "source": "./package.json",
+    "scripts": {
+        "run": "esy '@test' x ReveryTerminalTestRunner"
+    },
+    "override": {
+        "build": [
+            "dune build -p revery-terminal,revery-terminal-test -j4"
+        ],
+        "dependencies": {
+            "@reason-native/rely": "^3.2.1"
+        },
+        "install": [
+            "esy-installer revery-terminal.install",
+            "esy-installer revery-terminal-test.install"
+        ]
+    }
 }
