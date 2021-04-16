@@ -44,7 +44,7 @@
   "resolutions": {
     "revery": "revery-ui/revery#373b087",
     "isolinear": "revery-ui/isolinear#8cad3b0",
-    "@revery/esy-libvterm": "revery-ui/esy-libvterm#6791447"
+    "@revery/esy-libvterm": "revery-ui/esy-libvterm#8b14377"
   },
   "scripts": {
     "format": "esy dune build @fmt --auto-promote",

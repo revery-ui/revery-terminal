@@ -1,5 +1,5 @@
 {
-  "checksum": "3d46c12f3753bdb9ab5c1fdc55828d71",
+  "checksum": "a4c483ee76cbd37e1e8a034b90a0af6e",
   "root": "revery-terminal@link-dev:./package.json",
   "node": {
     "yarn-pkg-config@github:esy-ocaml/yarn-pkg-config#db3a0b63883606dd57c54a7158d560d6cba8cd79@d41d8cd9": {
@@ -32,7 +32,7 @@
         "revery@github:revery-ui/revery#373b087@d41d8cd9",
         "isolinear@github:revery-ui/isolinear#8cad3b0@d41d8cd9",
         "@revery/timber@2.0.0@d41d8cd9",
-        "@revery/esy-libvterm@github:revery-ui/esy-libvterm#6791447@d41d8cd9",
+        "@revery/esy-libvterm@github:revery-ui/esy-libvterm#8b14377@d41d8cd9",
         "@reason-native/rely@3.2.1@d41d8cd9",
         "@onivim/reason-native-crash-utils@1.0.2@d41d8cd9"
       ],
@@ -323,14 +323,14 @@
       ],
       "devDependencies": []
     },
-    "@revery/esy-libvterm@github:revery-ui/esy-libvterm#6791447@d41d8cd9": {
+    "@revery/esy-libvterm@github:revery-ui/esy-libvterm#8b14377@d41d8cd9": {
       "id":
-        "@revery/esy-libvterm@github:revery-ui/esy-libvterm#6791447@d41d8cd9",
+        "@revery/esy-libvterm@github:revery-ui/esy-libvterm#8b14377@d41d8cd9",
       "name": "@revery/esy-libvterm",
-      "version": "github:revery-ui/esy-libvterm#6791447",
+      "version": "github:revery-ui/esy-libvterm#8b14377",
       "source": {
         "type": "install",
-        "source": [ "github:revery-ui/esy-libvterm#6791447" ]
+        "source": [ "github:revery-ui/esy-libvterm#8b14377" ]
       },
       "overrides": [],
       "dependencies": [],
