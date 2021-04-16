@@ -15,15 +15,23 @@
     "displayName": "Revery Example App",
     "mainExecutable": "App",
     "windows": {
-      "packages": ["zip"],
+      "packages": [
+        "zip"
+      ],
       "iconFile": "assets/icon.ico"
     },
     "darwin": {
-      "packages": ["tar", "dmg"],
+      "packages": [
+        "tar",
+        "dmg"
+      ],
       "iconFile": "assets/icon.icns"
     },
     "linux": {
-      "packages": ["tar", "appimage"]
+      "packages": [
+        "tar",
+        "appimage"
+      ]
     }
   },
   "dependencies": {
@@ -34,12 +42,13 @@
     "@revery/esy-libvterm": "^1.0.3"
   },
   "resolutions": {
-    "revery": "revery-ui/revery#b43852b",
-    "isolinear": "revery-ui/isolinear#8cad3b0"
+    "revery": "revery-ui/revery#373b087",
+    "isolinear": "revery-ui/isolinear#8cad3b0",
+    "@revery/esy-libvterm": "revery-ui/esy-libvterm#8b14377"
   },
   "scripts": {
-   "format": "esy dune build @fmt --auto-promote",
-   "run": "esy x App"
+    "format": "esy dune build @fmt --auto-promote",
+    "run": "esy x App"
   },
   "devDependencies": {
     "ocaml": "4.10.0",
